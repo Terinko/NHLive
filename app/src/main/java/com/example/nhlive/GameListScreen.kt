@@ -1,7 +1,7 @@
 package com.example.nhlive
 
 import android.util.Log
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,13 +13,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,16 +37,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import coil.decode.SvgDecoder
+import com.example.nhlive.ui.theme.NHLiveTheme
 import com.google.gson.JsonSyntaxException
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -50,6 +57,7 @@ fun GameListScreen() {
     var scheduleResponse by remember { mutableStateOf<ScheduleResponse?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isDarkTheme by remember { mutableStateOf(false) } // State for theme toggle
     val coroutineScope = rememberCoroutineScope()
 
     // Fetch games on first composition with improved error handling
@@ -94,48 +102,62 @@ fun GameListScreen() {
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("NHL Games") }
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentAlignment = Alignment.Center
-        ) {
-            when {
-                isLoading -> CircularProgressIndicator()
-                errorMessage != null -> {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Error",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Text(
-                            text = errorMessage ?: "Unknown error",
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
-                        )
+    NHLiveTheme(darkTheme = isDarkTheme) { // Apply theme dynamically
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("NHL Games") },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background
+                    ),
+                    actions = {
+                        IconButton(onClick = { isDarkTheme = !isDarkTheme }) { // Toggle theme
+                            Icon(
+                                imageVector = if (isDarkTheme) Icons.Filled.Settings else Icons.Filled.Settings,
+                                contentDescription = "Toggle Theme"
+                            )
+                        }
                     }
-                }
-                scheduleResponse == null -> Text("No games found")
-                else -> {
-                    val allGames = scheduleResponse!!.gameWeek.flatMap { it.games }
+                )
+            }
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background), // Set background color dynamically
+                contentAlignment = Alignment.Center
+            ) {
+                when {
+                    isLoading -> CircularProgressIndicator()
+                    errorMessage != null -> {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Error",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Text(
+                                text = errorMessage ?: "Unknown error",
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                    scheduleResponse == null -> Text("No games found")
+                    else -> {
+                        val allGames = scheduleResponse!!.gameWeek.flatMap { it.games }
 
-                    if (allGames.isEmpty()) {
-                        Text("No games scheduled for today")
-                    } else {
-                        LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(allGames) { game ->
-                                GameItemComposable(game = game)
+                        if (allGames.isEmpty()) {
+                            Text("No games scheduled for today")
+                        } else {
+                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                items(allGames) { game ->
+                                    GameItemComposable(game = game)
+                                }
                             }
                         }
                     }
@@ -145,28 +167,6 @@ fun GameListScreen() {
     }
 }
 
-//Elements to use:
-//gameState
-//text = when (game.gameState) {
-//    "FUT" -> "Upcoming"
-//    "LIVE" -> "LIVE"
-//    "FINAL" -> "Final"
-//    else -> game.gameState
-//}
-//Away City
-//game.awayTeam.placeName.default
-//Away Team Name
-//game.awayTeam.commonName.default
-//Away Score
-//game.awayTeam.score?.toString() ?: "-"
-//Home Score
-//game.homeTeam.score?.toString() ?: "-"
-//Home City
-//game.homeTeam.placeName.default
-//Home Team Name
-//game.homeTeam.commonName.default
-//Game Time
-//game.formattedDateTime
 @Composable
 fun GameItemComposable(game: Game) {
     val imageLoader = ImageLoader.Builder(LocalContext.current)
