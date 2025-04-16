@@ -187,6 +187,7 @@ fun GameItemComposable(game: Game) {
                     "PRE" -> "Pregame"
                     "LIVE" -> "LIVE"
                     "FINAL" -> "Final"
+                    "CRIT" -> "Overtime"
                     else -> game.gameState
                 },
                 style = MaterialTheme.typography.bodySmall,
