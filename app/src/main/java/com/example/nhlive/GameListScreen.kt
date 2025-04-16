@@ -206,26 +206,58 @@ fun GameItemComposable(game: Game, homeTeamStats: TeamStats?, awayTeamStats: Tea
             .padding(10.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = when (game.gameState) {
-                    "FUT" -> "Upcoming"
-                    "PRE" -> "Pregame"
-                    "LIVE" -> "LIVE"
-                    "FINAL" -> "Final"
-                    "CRIT" -> "Overtime"
-                    "OFF" -> "Official Score"
-                    else -> game.gameState
-                },
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(bottom = 10.dp)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = when (game.gameState) {
+                        "FUT" -> "Upcoming"
+                        "PRE" -> "Pregame"
+                        "LIVE" -> "LIVE"
+                        "FINAL" -> "Final"
+                        "CRIT" -> "Overtime"
+                        "OFF" -> "Official Score"
+                        else -> game.gameState
+                    },
+                    color = when (game.gameState) {
+                        "LIVE" -> Color.Red
+                        "FINAL" -> Color.Green
+                        "CRIT" -> Color.Yellow
+                        else -> MaterialTheme.colorScheme.onSurface
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+                Text(
+                    // Display formatted date/time based on game state
+                    text = if (game.gameState == "FUT" || game.gameState == "PRE") {
+                        game.formattedDateTime
+                    } else if (game.gameState == "FINAL" || game.gameState == "OFF") {
+                        " "
+                    } else if (game.gameState == "CRIT") {
+                        // TODO: show "OT" and time remaining
+                        "In OT" // PLACEHOLDER
+                    } else {
+                        // TODO: show current period (ex. "P1") and time remaining
+                        // https://api-web.nhle.com/v1/gamecenter/{gameId}/play-by-play
+                        // Replace {gameId} with the specific game's ID (ex. 2024020240)
+                        // then we can take 'displayPeriod' and 'clock' to display
+                        "In Game" // PLACEHOLDER
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+            }
 
             // Home Team Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 15.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -236,11 +268,11 @@ fun GameItemComposable(game: Game, homeTeamStats: TeamStats?, awayTeamStats: Tea
                         contentDescription = "Home Team Logo",
                         imageLoader = imageLoader,
                         modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
+                            .size(50.dp),
+                        contentScale = ContentScale.Inside
                     )
-                    Column(modifier = Modifier.padding(start = 8.dp)) {
+                    Column(modifier = Modifier.padding(start = 5.dp)) {
+                        // TODO: surround with row and add optional star icon after name if favorite team
                         Text(
                             text = "${game.homeTeam.placeName.default} ${game.homeTeam.commonName.default}",
                             style = MaterialTheme.typography.bodyLarge,
@@ -277,8 +309,9 @@ fun GameItemComposable(game: Game, homeTeamStats: TeamStats?, awayTeamStats: Tea
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 20.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(bottom = 5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -289,11 +322,10 @@ fun GameItemComposable(game: Game, homeTeamStats: TeamStats?, awayTeamStats: Tea
                         contentDescription = "Away Team Logo",
                         imageLoader = imageLoader,
                         modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
+                            .size(50.dp),
+                        contentScale = ContentScale.Inside
                     )
-                    Column(modifier = Modifier.padding(start = 8.dp)) {
+                    Column(modifier = Modifier.padding(start = 5.dp)) {
                         Text(
                             text = "${game.awayTeam.placeName.default} ${game.awayTeam.commonName.default}",
                             style = MaterialTheme.typography.bodyLarge,
@@ -326,10 +358,6 @@ fun GameItemComposable(game: Game, homeTeamStats: TeamStats?, awayTeamStats: Tea
                 )
             }
 
-            Text(
-                text = game.formattedDateTime,
-                style = MaterialTheme.typography.bodySmall
-            )
         }
     }
 }

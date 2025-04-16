@@ -16,4 +16,8 @@ interface ApiService {
         @Query("sort") sort: String = "points",
         @Query("cayenneExp") cayenneExp: String = "seasonId=20232024 and gameTypeId=2"
     ): TeamStatsResponse
+
+    // New Endpoint for game details
+    // need to add the gameId to the endpoint
+
 }
