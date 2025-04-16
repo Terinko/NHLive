@@ -23,11 +23,20 @@ object ApiClient {
         .setLenient()
         .create()
 
+    // Main API for game schedules
     val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl("https://api-web.nhle.com/v1/")
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
+    // Stats API with different base URL
+    val statsRetrofit: Retrofit = Retrofit.Builder()
+        .baseUrl("https://api.nhle.com/")
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create(gson))
+        .build()
+
     val apiService: ApiService = retrofit.create(ApiService::class.java)
+    val statsApiService: ApiService = statsRetrofit.create(ApiService::class.java)
 }

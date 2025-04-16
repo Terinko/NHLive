@@ -6,6 +6,27 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+data class TeamStatsResponse(
+    @SerializedName("data") val data: List<TeamStats> = emptyList()
+)
+
+data class TeamStats(
+    @SerializedName("teamId") val teamId: Int,
+    @SerializedName("teamFullName") val teamFullName: String,
+    @SerializedName("gamesPlayed") val gamesPlayed: Int,
+    @SerializedName("wins") val wins: Int,
+    @SerializedName("losses") val losses: Int,
+    @SerializedName("otLosses") val otLosses: Int,
+    @SerializedName("points") val points: Int,
+    @SerializedName("goalsFor") val goalsFor: Int,
+    @SerializedName("goalsAgainst") val goalsAgainst: Int,
+    @SerializedName("goalsForPerGame") val goalsForPerGame: Double,
+    @SerializedName("goalsAgainstPerGame") val goalsAgainstPerGame: Double,
+    @SerializedName("shotsForPerGame") val shotsForPerGame: Double,
+    @SerializedName("shotsAgainstPerGame") val shotsAgainstPerGame: Double
+    // Add other fields as needed
+)
+
 // Schedule response
 data class ScheduleResponse(
     @SerializedName("previousStartDate") val previousStartDate: String = "",
@@ -132,4 +153,10 @@ data class BoxscoreTeam(
     @SerializedName("abbrev") val abbrev: String = "",
     @SerializedName("score") val score: Int = 0,
     @SerializedName("sog") val sog: Int = 0
+)
+
+data class TeamRecordResponse(
+    @SerializedName("wins") val wins: Int = 0,
+    @SerializedName("losses") val losses: Int = 0,
+    @SerializedName("ot") val ot: Int = 0 // Overtime losses
 )
