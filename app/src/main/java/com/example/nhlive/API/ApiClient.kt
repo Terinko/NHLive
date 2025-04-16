@@ -1,4 +1,4 @@
-package com.example.nhlive
+package com.example.nhlive.API
 
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient

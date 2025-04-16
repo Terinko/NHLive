@@ -1,4 +1,4 @@
-package com.example.nhlive
+package com.example.nhlive.dataElements
 
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDate
