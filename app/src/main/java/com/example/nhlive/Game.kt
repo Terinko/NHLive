@@ -6,6 +6,21 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+
+data class GameDetailsResponse(
+    @SerializedName("id") val id: Int,
+    @SerializedName("gameState") val gameState: String,
+    @SerializedName("displayPeriod") val displayPeriod: Int,
+    @SerializedName("clock") val clock: GameClock
+)
+
+data class GameClock(
+    @SerializedName("timeRemaining") val timeRemaining: String,
+    @SerializedName("secondsRemaining") val secondsRemaining: Int,
+    @SerializedName("running") val running: Boolean,
+    @SerializedName("inIntermission") val inIntermission: Boolean
+)
+
 data class TeamStatsResponse(
     @SerializedName("data") val data: List<TeamStats> = emptyList()
 )
@@ -24,7 +39,6 @@ data class TeamStats(
     @SerializedName("goalsAgainstPerGame") val goalsAgainstPerGame: Double,
     @SerializedName("shotsForPerGame") val shotsForPerGame: Double,
     @SerializedName("shotsAgainstPerGame") val shotsAgainstPerGame: Double
-    // Add other fields as needed
 )
 
 // Schedule response
@@ -137,26 +151,4 @@ data class PeriodDescriptor(
     @SerializedName("number") val number: Int = 0,
     @SerializedName("periodType") val periodType: String = "",
     @SerializedName("maxRegulationPeriods") val maxRegulationPeriods: Int = 3
-)
-
-// Game details response
-data class GameDetailsResponse(
-    @SerializedName("id") val id: Int = 0,
-    @SerializedName("gameState") val gameState: String = "",
-    @SerializedName("homeTeam") val homeTeam: BoxscoreTeam = BoxscoreTeam(),
-    @SerializedName("awayTeam") val awayTeam: BoxscoreTeam = BoxscoreTeam()
-)
-
-data class BoxscoreTeam(
-    @SerializedName("id") val id: Int = 0,
-    @SerializedName("name") val name: String = "",
-    @SerializedName("abbrev") val abbrev: String = "",
-    @SerializedName("score") val score: Int = 0,
-    @SerializedName("sog") val sog: Int = 0
-)
-
-data class TeamRecordResponse(
-    @SerializedName("wins") val wins: Int = 0,
-    @SerializedName("losses") val losses: Int = 0,
-    @SerializedName("ot") val ot: Int = 0 // Overtime losses
 )

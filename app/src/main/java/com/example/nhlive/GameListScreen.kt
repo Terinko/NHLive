@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
@@ -50,6 +51,7 @@ import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
 import com.example.nhlive.ui.theme.NHLiveTheme
 import com.google.gson.JsonSyntaxException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import kotlin.text.set
@@ -66,11 +68,13 @@ fun GameListScreen() {
     // Change this to store TeamStats objects instead of TeamRecordResponse
     val teamStats = remember { mutableStateMapOf<Int, TeamStats>() }
 
+    // Add a map to store game details for live games
+    val gameDetails = remember { mutableStateMapOf<Int, GameDetailsResponse>() }
+
     // Fetch games on first composition
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             try {
-
                 // Actual API call
                 Log.d("API_CALL", "Calling NHL API: ${ApiClient.retrofit.baseUrl()}schedule/now")
                 scheduleResponse = ApiClient.apiService.getTodaySchedule()
@@ -123,20 +127,60 @@ fun GameListScreen() {
         }
     }
 
+    // Fetch game details for live games and periodically update them
+    LaunchedEffect(scheduleResponse) {
+        if (scheduleResponse != null) {
+            coroutineScope.launch {
+                while (true) {
+                    val liveGames = scheduleResponse?.gameWeek?.flatMap { it.games }?.filter {
+                        it.gameState == "LIVE" || it.gameState == "CRIT" || it.gameState == "FINAL"
+                    } ?: emptyList()
+
+                    for (game in liveGames) {
+                        try {
+                            Log.d("GAME_DETAILS", "Fetching details for game: ${game.id}")
+                            val details = ApiClient.apiService.getGameDetails(game.id)
+                            gameDetails[game.id] = details
+                            Log.d("GAME_DETAILS", "Loaded details for game ${game.id}: Period ${details.displayPeriod}, Time: ${details.clock.timeRemaining}")
+                        } catch (e: Exception) {
+                            Log.e("GAME_DETAILS", "Failed to fetch details for game ${game.id}: ${e.message}")
+                        }
+                    }
+
+                    // Update every 30 seconds for live games
+                    delay(30000)
+                }
+            }
+        }
+    }
+
     NHLiveTheme(darkTheme = isDarkTheme) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Live Scores") },
+                    title = { Text("") },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.background
                     ),
+                    expandedHeight = 30.dp,
                     actions = {
-                        IconButton(onClick = { isDarkTheme = !isDarkTheme }) {
-                            Icon(
-                                imageVector = if (isDarkTheme) Icons.Filled.Settings else Icons.Filled.Settings,
-                                contentDescription = "Toggle Theme"
-                            )
+                        Row (
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ){
+                            IconButton(onClick = { isDarkTheme = !isDarkTheme }) {
+                                Icon(
+                                    imageVector = if (isDarkTheme) Icons.Filled.AccountCircle else Icons.Filled.AccountCircle,
+                                    contentDescription = "Player of the Week"
+                                )
+                            }
+                            IconButton(onClick = { isDarkTheme = !isDarkTheme }) {
+                                Icon(
+                                    imageVector = if (isDarkTheme) Icons.Filled.Settings else Icons.Filled.Settings,
+                                    contentDescription = "Toggle Theme"
+                                )
+                            }
                         }
                     }
                 )
@@ -175,13 +219,22 @@ fun GameListScreen() {
                         if (allGames.isEmpty()) {
                             Text("No games scheduled for today")
                         } else {
-                            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                                items(allGames) { game ->
-                                    GameItemComposable(
-                                        game = game,
-                                        homeTeamStats = teamStats[game.homeTeam.id],
-                                        awayTeamStats = teamStats[game.awayTeam.id]
-                                    )
+                            Column {
+                                Text(
+                                    text = "Live Scores:",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 15.dp, start = 15.dp, bottom = 5.dp)
+                                )
+                                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                    items(allGames) { game ->
+                                        GameItemComposable(
+                                            game = game,
+                                            homeTeamStats = teamStats[game.homeTeam.id],
+                                            awayTeamStats = teamStats[game.awayTeam.id],
+                                            gameDetailsResponse = gameDetails[game.id]
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -193,7 +246,12 @@ fun GameListScreen() {
 }
 
 @Composable
-fun GameItemComposable(game: Game, homeTeamStats: TeamStats?, awayTeamStats: TeamStats?) {
+fun GameItemComposable(
+    game: Game,
+    homeTeamStats: TeamStats?,
+    awayTeamStats: TeamStats?,
+    gameDetailsResponse: GameDetailsResponse?
+) {
     val imageLoader = ImageLoader.Builder(LocalContext.current)
         .components {
             add(SvgDecoder.Factory())
@@ -231,20 +289,30 @@ fun GameItemComposable(game: Game, homeTeamStats: TeamStats?, awayTeamStats: Tea
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
                 Text(
-                    // Display formatted date/time based on game state
+                    // Display formatted date/time or period info based on game state
                     text = if (game.gameState == "FUT" || game.gameState == "PRE") {
                         game.formattedDateTime
                     } else if (game.gameState == "FINAL" || game.gameState == "OFF") {
                         " "
+                    } else if (gameDetailsResponse != null) {
+                        // Display period and time for live games
+                        val period = gameDetailsResponse.displayPeriod
+                        val periodText = when (period) {
+                            1 -> "1st"
+                            2 -> "2nd"
+                            3 -> "3rd"
+                            else -> "${period}th"
+                        }
+
+                        if (gameDetailsResponse.clock.inIntermission) {
+                            "Intermission"
+                        } else {
+                            "$periodText Period - ${gameDetailsResponse.clock.timeRemaining}"
+                        }
                     } else if (game.gameState == "CRIT") {
-                        // TODO: show "OT" and time remaining
-                        "In OT" // PLACEHOLDER
+                        "In OT"
                     } else {
-                        // TODO: show current period (ex. "P1") and time remaining
-                        // https://api-web.nhle.com/v1/gamecenter/{gameId}/play-by-play
-                        // Replace {gameId} with the specific game's ID (ex. 2024020240)
-                        // then we can take 'displayPeriod' and 'clock' to display
-                        "In Game" // PLACEHOLDER
+                        "In Game"
                     },
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(bottom = 10.dp)
@@ -357,7 +425,6 @@ fun GameItemComposable(game: Game, homeTeamStats: TeamStats?, awayTeamStats: Tea
                     style = MaterialTheme.typography.titleLarge
                 )
             }
-
         }
     }
 }

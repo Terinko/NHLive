@@ -19,5 +19,7 @@ interface ApiService {
 
     // New Endpoint for game details
     // need to add the gameId to the endpoint
+    @GET("gamecenter/{gameId}/play-by-play")
+    suspend fun getGameDetails(@Path("gameId") gameId: Int): GameDetailsResponse
 
 }
