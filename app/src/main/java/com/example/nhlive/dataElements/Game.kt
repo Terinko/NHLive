@@ -41,7 +41,6 @@ data class TeamStats(
     @SerializedName("shotsAgainstPerGame") val shotsAgainstPerGame: Double
 )
 
-// Schedule response
 data class ScheduleResponse(
     @SerializedName("previousStartDate") val previousStartDate: String = "",
     @SerializedName("gameWeek") val gameWeek: List<GameDay> = emptyList()
@@ -55,7 +54,6 @@ data class GameDay(
     @SerializedName("games") val games: List<Game> = emptyList()
 )
 
-// Game representation matching the API response structure
 data class Game(
     @SerializedName("id") val id: Int = 0,
     @SerializedName("season") val season: Int = 0,
@@ -124,7 +122,7 @@ data class TeamInfo(
     @SerializedName("homeSplitSquad") val homeSplitSquad: Boolean? = null,
     @SerializedName("radioLink") val radioLink: String? = null,
     @SerializedName("odds") val odds: List<Odds>? = null,
-    @SerializedName("score") val score: Int? = null  // Make score nullable since future games won't have scores
+    @SerializedName("score") val score: Int? = null
 )
 
 data class CommonName(

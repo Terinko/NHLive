@@ -43,6 +43,7 @@ fun GameItemComposable(
             .padding(10.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            //Game state/time display
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -71,7 +72,6 @@ fun GameItemComposable(
                     modifier = Modifier.padding(bottom = 10.dp)
                 )
                 Text(
-                    // Display formatted date/time or period info based on game state
                     text = if (game.gameState == "FUT" || game.gameState == "PRE") {
                         game.formattedDateTime
                     } else if (game.gameState == "FINAL" || game.gameState == "OFF") {
@@ -101,7 +101,7 @@ fun GameItemComposable(
                 )
             }
 
-            // Home Team Row
+            //Home Team Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -126,7 +126,6 @@ fun GameItemComposable(
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold
                         )
-                        // Team Record display with loading state
                         when {
                             homeTeamStats != null -> {
                                 Text(
@@ -153,7 +152,7 @@ fun GameItemComposable(
                 )
             }
 
-            // Away Team Row
+            //Away Team Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -178,7 +177,6 @@ fun GameItemComposable(
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold
                         )
-                        // Team Record display with loading state
                         when {
                             awayTeamStats != null -> {
                                 Text(
@@ -197,7 +195,6 @@ fun GameItemComposable(
                         }
                     }
                 }
-
                 Text(
                     text = game.awayTeam.score?.toString() ?: "-",
                     fontWeight = FontWeight.ExtraBold,

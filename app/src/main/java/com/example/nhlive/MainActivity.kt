@@ -15,19 +15,18 @@ import com.example.nhlive.uiElements.GameListScreen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // Enable edge-to-edge display
+        enableEdgeToEdge()
 
         setContent {
-            // Create ViewModel instance
+            //Create the viewmodel
             val viewModel: GameListViewModel = viewModel()
 
             NHLiveTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Pass ViewModel to the screen
+                    //gameScreen needs viewmodel to work correctly
                     GameListScreen(viewModel = viewModel)
                 }
             }
