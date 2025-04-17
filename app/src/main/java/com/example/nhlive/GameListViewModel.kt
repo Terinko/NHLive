@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nhlive.dataElements.GameDetailsResponse
-import com.example.nhlive.dataElements.GameRepository
+import com.example.nhlive.API.GameRepository
 import com.example.nhlive.dataElements.ScheduleResponse
 import com.example.nhlive.dataElements.TeamStats
 import com.google.gson.JsonSyntaxException

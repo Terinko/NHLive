@@ -54,7 +54,7 @@ fun GameItemComposable(
                         "PRE" -> "Pregame"
                         "LIVE" -> "LIVE"
                         "FINAL" -> "Final"
-                        "CRIT" -> "Overtime"
+                        "CRIT" -> "LIVE"
                         "OFF" -> "Official Score"
                         else -> game.gameState
                     },

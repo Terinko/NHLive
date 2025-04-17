@@ -1,7 +1,10 @@
-package com.example.nhlive.dataElements
+package com.example.nhlive.API
 
 import android.util.Log
-import com.example.nhlive.API.ApiClient
+import com.example.nhlive.dataElements.GameDetailsResponse
+import com.example.nhlive.dataElements.ScheduleResponse
+import com.example.nhlive.dataElements.TeamStatsResponse
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -58,7 +61,10 @@ class GameRepository {
             //Refresh
             getTodaySchedule().onSuccess { schedule ->
                 latestSchedule = schedule
-                Log.d("LIVE_UPDATES", "Schedule refreshed with ${schedule.gameWeek.flatMap { it.games }.size} games")
+                Log.d(
+                    "LIVE_UPDATES",
+                    "Schedule refreshed with ${schedule.gameWeek.flatMap { it.games }.size} games"
+                )
 
                 val liveGames = schedule.gameWeek.flatMap { it.games }.filter {
                     it.gameState == "LIVE" || it.gameState == "CRIT" || it.gameState == "FINAL"
@@ -75,7 +81,7 @@ class GameRepository {
             emit(LiveGameUpdate(latestSchedule, gameDetailsMap))
 
             //TODO: Taken from stackoverflow ask about what this actually does
-            kotlinx.coroutines.delay(refreshIntervalMs)
+            delay(refreshIntervalMs)
         }
     }
 }
