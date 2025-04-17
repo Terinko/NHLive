@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -40,7 +39,6 @@ import com.example.nhlive.ui.theme.NHLiveTheme
 fun GameListScreen(
     viewModel: GameListViewModel = viewModel()
 ) {
-    // Observe LiveData as State
     val uiState by viewModel.uiState.observeAsState(GameListViewModel.UiState())
 
     NHLiveTheme(darkTheme = uiState.isDarkTheme) {

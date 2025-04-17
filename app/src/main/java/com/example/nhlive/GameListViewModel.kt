@@ -9,10 +9,6 @@ import com.example.nhlive.dataElements.GameRepository
 import com.example.nhlive.dataElements.ScheduleResponse
 import com.example.nhlive.dataElements.TeamStats
 import com.google.gson.JsonSyntaxException
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
@@ -20,7 +16,6 @@ class GameListViewModel(
     private val repository: GameRepository = GameRepository()
 ) : ViewModel() {
 
-    // UI state data class
     data class UiState(
         val isLoading: Boolean = true,
         val errorMessage: String? = null,
@@ -36,7 +31,7 @@ class GameListViewModel(
     init {
         loadSchedule()
     }
-
+    //Start our coroutines to get data from the multiple API calls
     fun loadSchedule() {
         viewModelScope.launch {
             updateState { it.copy(isLoading = true) }
@@ -98,7 +93,7 @@ class GameListViewModel(
         updateState { it.copy(isDarkTheme = !it.isDarkTheme) }
     }
 
-    // Helper function to update state
+    //Update state
     private fun updateState(update: (UiState) -> UiState) {
         _uiState.value = update(_uiState.value ?: UiState())
     }

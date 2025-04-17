@@ -2,7 +2,6 @@ package com.example.nhlive.dataElements
 
 import android.util.Log
 import com.example.nhlive.API.ApiClient
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -44,24 +43,23 @@ class GameRepository {
         }
     }
 
-    // Combined data class for live game updates
+    //Update both at the same time to save lines
     data class LiveGameUpdate(
         val scheduleResponse: ScheduleResponse? = null,
         val gameDetails: Map<Int, GameDetailsResponse> = emptyMap()
     )
 
-    // Stream of live game updates including scores and details
+    //Stream of live game updates including scores and details
     fun getLiveGameUpdates(refreshIntervalMs: Long = 30000): Flow<LiveGameUpdate> = flow {
         while (true) {
             val gameDetailsMap = mutableMapOf<Int, GameDetailsResponse>()
             var latestSchedule: ScheduleResponse? = null
 
-            // Refresh schedule to get updated scores
+            //Refresh
             getTodaySchedule().onSuccess { schedule ->
                 latestSchedule = schedule
                 Log.d("LIVE_UPDATES", "Schedule refreshed with ${schedule.gameWeek.flatMap { it.games }.size} games")
 
-                // For each live game, get detailed information
                 val liveGames = schedule.gameWeek.flatMap { it.games }.filter {
                     it.gameState == "LIVE" || it.gameState == "CRIT" || it.gameState == "FINAL"
                 }
@@ -73,9 +71,10 @@ class GameRepository {
                 }
             }
 
-            // Emit combined update
+            //Emit combined update back to viewModel
             emit(LiveGameUpdate(latestSchedule, gameDetailsMap))
 
+            //TODO: Taken from stackoverflow ask about what this actually does
             kotlinx.coroutines.delay(refreshIntervalMs)
         }
     }
