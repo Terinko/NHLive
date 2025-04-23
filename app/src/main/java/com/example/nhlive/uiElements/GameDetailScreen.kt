@@ -36,6 +36,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -64,8 +67,6 @@ fun GameDetailScreen(
     // Find the selected game in the schedule
     val game = uiState.scheduleResponse?.gameWeek?.flatMap { it.games }?.find { it.id == gameId }
     val gameDetails = uiState.gameDetails[gameId]
-    val homeTeamStats = game?.let { uiState.teamStats[it.homeTeam.id] }
-    val awayTeamStats = game?.let { uiState.teamStats[it.awayTeam.id] }
 
     val imageLoader = ImageLoader.Builder(LocalContext.current)
         .components {
@@ -133,7 +134,12 @@ fun GameDetailScreen(
                     // Teams scoreboard section
                     TeamsScoreboardSection(game, imageLoader, gameDetails)
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    HorizontalDivider(modifier = Modifier.padding(top = 15.dp, bottom = 15.dp), thickness = 1.dp)
+
+                    // Favorites Buttons
+                    FavoritesSection()
+
+                    HorizontalDivider(modifier = Modifier.padding(top = 15.dp, bottom = 15.dp), thickness = 1.dp)
 
                     // Game details section if available
                     if (gameDetails != null) {
@@ -165,7 +171,8 @@ private fun GameStatusSection(
         )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .padding(16.dp)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -237,9 +244,9 @@ private fun TeamsScoreboardSection(
         ) {
             Box(
                 modifier = Modifier
-                        .size(90.dp)
-                        .background(color = Color.White, shape = CircleShape)
-                        .border(width = 2.dp, color = Color.Black, shape = CircleShape),
+                    .size(90.dp)
+                    .background(color = Color.White, shape = CircleShape)
+                    .border(width = 2.dp, color = Color.Black, shape = CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
@@ -250,7 +257,7 @@ private fun TeamsScoreboardSection(
                     contentScale = ContentScale.Inside
                 )
             }
-
+            Spacer(modifier = Modifier.height(5.dp))
             Text(
                 text = game.homeTeam.commonName.default,
                 style = MaterialTheme.typography.titleLarge,
@@ -264,7 +271,9 @@ private fun TeamsScoreboardSection(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.weight(1f).padding(bottom = 30.dp)
+            modifier = Modifier
+                .weight(1f)
+                .padding(bottom = 30.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -383,7 +392,7 @@ private fun TeamsScoreboardSection(
                     contentScale = ContentScale.Inside
                 )
             }
-
+            Spacer(modifier = Modifier.height(5.dp))
             Text(
                 text = game.awayTeam.commonName.default,
                 style = MaterialTheme.typography.titleLarge,
@@ -393,6 +402,65 @@ private fun TeamsScoreboardSection(
     }
 }
 
+@Composable
+private fun FavoritesSection() {
+    var buttonColorHome by remember { mutableStateOf(Color.Transparent) }
+    var buttonColorAway by remember { mutableStateOf(Color.Transparent) }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Button(
+            modifier = Modifier
+                .padding(1.dp)
+                .width(140.dp)
+                .border(1.dp, MaterialTheme.colorScheme.onSurface, shape = MaterialTheme.shapes.small)
+                .background(
+                    buttonColorHome,
+                    shape = MaterialTheme.shapes.small
+                ),
+            onClick = {
+                buttonColorHome = if (buttonColorHome == Color.Yellow) Color.Transparent else Color.Yellow
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = buttonColorHome,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            )
+        ) {
+            Text(
+                text = if (buttonColorHome == Color.Yellow) "Favorited" else "Favorite",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Normal
+            )
+        }
+
+        Button(
+            modifier = Modifier
+                .padding(1.dp)
+                .width(140.dp)
+                .border(1.dp, MaterialTheme.colorScheme.onSurface, shape = MaterialTheme.shapes.small)
+                .background(
+                    buttonColorAway,
+                    shape = MaterialTheme.shapes.small
+                ),
+            onClick = {
+                buttonColorAway = if (buttonColorAway == Color.Yellow) Color.Transparent else Color.Yellow
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = buttonColorAway,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            )
+        ) {
+            Text(
+                text = if (buttonColorAway == Color.Yellow) "Favorited" else "Favorite",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Normal
+            )
+        }
+    }
+}
 
 @Composable
 private fun GamePeriodInfoSection(gameDetails: GameDetailsResponse) {
@@ -476,3 +544,4 @@ private fun GamePeriodInfoSection(gameDetails: GameDetailsResponse) {
         }
     }
 }
+
