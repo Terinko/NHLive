@@ -42,7 +42,8 @@ import com.example.nhlive.ui.theme.NHLiveTheme
 @Composable
 fun GameListScreenWithRefresh(
     viewModel: GameListViewModel,
-    onGameClick: (Int) -> Unit = {}
+    onGameClick: (Int) -> Unit = {},
+    onPOTWClick: () -> Unit = {} // Add a callback for navigating to POTWScreen
 ) {
     val uiState by viewModel.uiState.observeAsState(GameListViewModel.UiState())
     NHLiveTheme(darkTheme = uiState.isDarkTheme) {
@@ -51,11 +52,12 @@ fun GameListScreenWithRefresh(
                 TopAppBar(
                     title = { Text("") },
                     actions = {
-                        Row (
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
-                        ){
-                            IconButton(onClick = { viewModel.toggleTheme() }) {
+                        ) {
+                            // Button to go to POTW Screen
+                            IconButton(onClick = { onPOTWClick() }) { // Navigate to POTWScreen
                                 Icon(
                                     imageVector = Icons.Default.AccountCircle,
                                     contentDescription = "Player of the Week"

@@ -10,10 +10,12 @@ import androidx.navigation.navArgument
 import com.example.nhlive.GameListViewModel
 import com.example.nhlive.uiElements.GameDetailScreen
 import com.example.nhlive.uiElements.GameListScreenWithRefresh
+import com.example.nhlive.uiElements.POTWScreen
 
 object AppRoutes {
     const val GAME_LIST = "gameList"
     const val GAME_DETAIL = "gameDetail/{gameId}"
+    const val POTW = "potw" // New route for Player of the Week screen
 
     // Helper function to create the route with parameters
     fun gameDetail(gameId: Int) = "gameDetail/$gameId"
@@ -33,6 +35,9 @@ fun AppNavigation(
                 viewModel = viewModel,
                 onGameClick = { gameId ->
                     navController.navigate(AppRoutes.gameDetail(gameId))
+                },
+                onPOTWClick = { // Navigate to POTW screen
+                    navController.navigate(AppRoutes.POTW)
                 }
             )
         }
@@ -46,6 +51,13 @@ fun AppNavigation(
             val gameId = backStackEntry.arguments?.getInt("gameId") ?: 0
             GameDetailScreen(
                 gameId = gameId,
+                viewModel = viewModel,
+                onBackPressed = { navController.popBackStack() }
+            )
+        }
+
+        composable(AppRoutes.POTW) {
+            POTWScreen(
                 viewModel = viewModel,
                 onBackPressed = { navController.popBackStack() }
             )
