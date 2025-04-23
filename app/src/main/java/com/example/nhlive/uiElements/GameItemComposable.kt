@@ -63,8 +63,8 @@ fun GameItemComposable(
                     },
                     color = when (game.gameState) {
                         "LIVE" -> Color.Red
-                        "FINAL" -> Color.Green
-                        "CRIT" -> Color.Yellow
+                        "FINAL" -> Color.Gray
+                        "CRIT" -> Color.hsl(23f, 1f, 0.5f)
                         else -> MaterialTheme.colorScheme.onSurface
                     },
                     fontWeight = when (game.gameState) {

@@ -74,7 +74,6 @@ class GameListViewModel(
 
     private fun startLiveUpdates() {
         viewModelScope.launch {
-            // Use the new combined live update flow
             repository.getLiveGameUpdates().collect { update ->
                 updateState { currentState ->
                     // Only update schedule if we got a new one (score updates)

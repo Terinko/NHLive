@@ -6,7 +6,39 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+data class GameBoxScoreResponse(
+    @SerializedName("id") val id: Int,
+    @SerializedName("gameState") val gameState: String,
+    @SerializedName("teamGameStats") val teamGameStats: List<TeamGameStats>,
+    @SerializedName("homeTeam") val homeTeam: BoxScoreTeam,
+    @SerializedName("awayTeam") val awayTeam: BoxScoreTeam
+)
 
+data class TeamGameStats(
+    @SerializedName("category") val category: String,
+    @SerializedName("teamStats") val teamStats: List<StatValue>
+)
+
+data class StatValue(
+    @SerializedName("teamId") val teamId: Int,
+    @SerializedName("abbreviation") val abbreviation: String,
+    @SerializedName("value") val value: Int
+)
+
+data class BoxScoreTeam(
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: TeamName,
+    @SerializedName("abbrev") val abbrev: String,
+    @SerializedName("score") val score: Int,
+    @SerializedName("sog") val shotsOnGoal: Int,
+    @SerializedName("faceoffWinningPctg") val faceoffPercentage: Double?,
+    @SerializedName("powerPlayConversion") val powerPlayConversion: String?,
+    @SerializedName("pim") val penaltyMinutes: Int
+)
+
+data class TeamName(
+    @SerializedName("default") val default: String
+)
 
 object GameSorter {
 

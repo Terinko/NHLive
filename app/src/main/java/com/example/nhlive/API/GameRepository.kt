@@ -80,7 +80,6 @@ class GameRepository {
             //Emit combined update back to viewModel
             emit(LiveGameUpdate(latestSchedule, gameDetailsMap))
 
-            //TODO: Taken from stackoverflow ask about what this actually does
             delay(refreshIntervalMs)
         }
     }
