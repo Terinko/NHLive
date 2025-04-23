@@ -108,8 +108,8 @@ fun POTWScreen(
 private fun StarCard(playerDetails : PlayerDetailsResponse){
     // Calculates the current week
     val today = LocalDate.now()
-    val sunday = today.with(DayOfWeek.SUNDAY).minusWeeks(1)
-    val saturday = today.with(DayOfWeek.SATURDAY)
+    val sunday = today.with(DayOfWeek.SUNDAY).minusWeeks(2)
+    val saturday = today.with(DayOfWeek.SATURDAY).minusWeeks(1)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -168,25 +168,30 @@ private fun StarCard(playerDetails : PlayerDetailsResponse){
 private fun WeeklyStats(playerDetails : PlayerDetailsResponse){
     // Calculates the current week
     val today = LocalDate.now()
-    val sunday = today.with(DayOfWeek.SUNDAY).minusWeeks(1)
-    val saturday = today.with(DayOfWeek.SATURDAY)
+    val sunday = today.with(DayOfWeek.SUNDAY).minusWeeks(2)
+    val saturday = today.with(DayOfWeek.SATURDAY).minusWeeks(1)
 
+    // Calculates total games, goals, assists, and points from current week
     val dateFormatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val totalGames = playerDetails.last5Games.count {
         val gameDate = LocalDate.parse(it.gameDate, dateFormatter)
-        gameDate.isAfter(sunday) && gameDate.isBefore(saturday.plusDays(1))
+        (gameDate.isAfter(sunday) || gameDate.isEqual(sunday)) &&
+        (gameDate.isBefore(saturday.plusDays(1)) || gameDate.isEqual(saturday))
     }
     val totalGoals = playerDetails.last5Games.filter {
         val gameDate = LocalDate.parse(it.gameDate, dateFormatter)
-        gameDate.isAfter(sunday) && gameDate.isBefore(saturday.plusDays(1))
+        (gameDate.isAfter(sunday) || gameDate.isEqual(sunday)) &&
+        (gameDate.isBefore(saturday.plusDays(1)) || gameDate.isEqual(saturday))
     }.sumOf { it.goals }
     val totalAssists = playerDetails.last5Games.filter {
         val gameDate = LocalDate.parse(it.gameDate, dateFormatter)
-        gameDate.isAfter(sunday) && gameDate.isBefore(saturday.plusDays(1))
+        (gameDate.isAfter(sunday) || gameDate.isEqual(sunday)) &&
+        (gameDate.isBefore(saturday.plusDays(1)) || gameDate.isEqual(saturday))
     }.sumOf { it.assists }
     val totalPoints = playerDetails.last5Games.filter {
         val gameDate = LocalDate.parse(it.gameDate, dateFormatter)
-        gameDate.isAfter(sunday) && gameDate.isBefore(saturday.plusDays(1))
+        (gameDate.isAfter(sunday) || gameDate.isEqual(sunday)) &&
+        (gameDate.isBefore(saturday.plusDays(1)) || gameDate.isEqual(saturday))
     }.sumOf { it.points }
 
     Text(

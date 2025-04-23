@@ -60,7 +60,7 @@ fun AppNavigation(
             POTWScreen(
                 viewModel = viewModel,
                 onBackPressed = { navController.popBackStack() },
-                playerId = 8478402 // TODO: Replace with POTW player ID
+                playerId = 8482116 // TODO: Replace with POTW player ID
             )
         }
     }
