@@ -1,28 +1,44 @@
 package com.example.nhlive.uiElements
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -34,7 +50,6 @@ import coil.decode.SvgDecoder
 import com.example.nhlive.GameListViewModel
 import com.example.nhlive.dataElements.Game
 import com.example.nhlive.dataElements.GameDetailsResponse
-import com.example.nhlive.dataElements.TeamStats
 import com.example.nhlive.ui.theme.NHLiveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,7 +85,7 @@ fun GameDetailScreen(
                         ){
                             IconButton(onClick = onBackPressed) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowBack,
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Back"
                                 )
                             }
@@ -110,12 +125,13 @@ fun GameDetailScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Game status section
-                    GameStatusSection(game, gameDetails)
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    // TODO: Uncomment if we want to keep game status section
+                    //GameStatusSection(game, gameDetails)
+                    //Spacer(modifier = Modifier.height(24.dp))
 
                     // Teams scoreboard section
-                    TeamsScoreboardSection(game, homeTeamStats, awayTeamStats, imageLoader)
+                    TeamsScoreboardSection(game, imageLoader, gameDetails)
 
                     Spacer(modifier = Modifier.height(24.dp))
 
@@ -205,70 +221,171 @@ private fun GameStatusSection(
 @Composable
 private fun TeamsScoreboardSection(
     game: Game,
-    homeTeamStats: TeamStats?,
-    awayTeamStats: TeamStats?,
-    imageLoader: ImageLoader
+    imageLoader: ImageLoader,
+    gameDetails: GameDetailsResponse?
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Away team column
+        // Home team column
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.weight(1f)
         ) {
-            AsyncImage(
-                model = "https://assets.nhle.com/logos/nhl/svg/${game.awayTeam.abbrev}_light.svg",
-                contentDescription = "Away Team Logo",
-                imageLoader = imageLoader,
-                modifier = Modifier.size(100.dp),
-                contentScale = ContentScale.Inside
-            )
+            Box(
+                modifier = Modifier
+                        .size(90.dp)
+                        .background(color = Color.White, shape = CircleShape)
+                        .border(width = 2.dp, color = Color.Black, shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = "https://assets.nhle.com/logos/nhl/svg/${game.homeTeam.abbrev}_light.svg",
+                    contentDescription = "Home Team Logo",
+                    imageLoader = imageLoader,
+                    modifier = Modifier.size(80.dp),
+                    contentScale = ContentScale.Inside
+                )
+            }
 
             Text(
-                text = game.awayTeam.commonName.default,
+                text = game.homeTeam.commonName.default,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
         }
 
-        // Score column
+        // Home score
+        // Game time
+        // Away score
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).padding(bottom = 30.dp)
         ) {
-            if (game.gameState != "FUT" && game.gameState != "PRE") {
-                Text(
-                    text = "${game.awayTeam.score ?: 0} - ${game.homeTeam.score ?: 0}",
-                    style = MaterialTheme.typography.displayMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            } else {
-                Text(
-                    text = "VS",
-                    style = MaterialTheme.typography.displayMedium
-                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // if game is live, show the score and time
+                if (game.gameState == "LIVE" || game.gameState == "CRIT") {
+                    Text(
+                        text = "${game.homeTeam.score ?: 0}",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    // show current period and time remaining
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+                    ) {
+                        Text(
+                            // display 1st, 2nd, 3rd, or OT
+                            text = if (gameDetails != null) {
+                                when (val period = gameDetails.displayPeriod) {
+                                    1 -> "1st"
+                                    2 -> "2nd"
+                                    3 -> "3rd"
+                                    4 -> "OT"
+                                    5 -> "2OT"
+                                    6 -> "3OT"
+                                    else -> "${period}th"
+                                }
+                            } else {
+                                "-th"
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = if (gameDetails != null) {
+                                if (gameDetails.clock.inIntermission) {
+                                    "Intermission"
+                                } else {
+                                    gameDetails.clock.timeRemaining
+                                }
+                            } else {
+                                "00:00"
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    Text(
+                        text = "${game.awayTeam.score ?: 0}",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                } else if (game.gameState == "FINAL" || game.gameState == "OFF") {
+                    // if game is final or off, show the final score and say "Final"
+                    Text(
+                        text = "${game.homeTeam.score ?: 0}",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Final",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+                    )
+                    Text(
+                        text = "${game.awayTeam.score ?: 0}",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                } else if (game.gameState == "FUT" || game.gameState == "PRE") {
+                    // if game is pre or future, show the start date and time and "-" for score
+                    Text(
+                        text = "-",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = game.formattedDateTimeStacked,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+                    )
+                    Text(
+                        text = "-",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 
-        // Home team column
+        // Away team column
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.weight(1f)
         ) {
-            AsyncImage(
-                model = "https://assets.nhle.com/logos/nhl/svg/${game.homeTeam.abbrev}_light.svg",
-                contentDescription = "Home Team Logo",
-                imageLoader = imageLoader,
-                modifier = Modifier.size(100.dp),
-                contentScale = ContentScale.Inside
-            )
+            Box(
+                modifier = Modifier
+                    .size(90.dp)
+                    .background(color = Color.White, shape = CircleShape)
+                    .border(width = 2.dp, color = Color.Black, shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = "https://assets.nhle.com/logos/nhl/svg/${game.awayTeam.abbrev}_light.svg",
+                    contentDescription = "Away Team Logo",
+                    imageLoader = imageLoader,
+                    modifier = Modifier.size(80.dp),
+                    contentScale = ContentScale.Inside
+                )
+            }
 
             Text(
-                text = game.homeTeam.commonName.default,
+                text = game.awayTeam.commonName.default,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -291,8 +408,6 @@ private fun GamePeriodInfoSection(gameDetails: GameDetailsResponse) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-
-            Divider()
 
             Row(
                 modifier = Modifier

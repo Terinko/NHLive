@@ -164,6 +164,34 @@ data class Game(
                 return startTimeUTC.substringAfter("T").substringBefore("Z")
             }
         }
+
+    val formattedDateTimeStacked: String
+        get() {
+            try {
+                val utcTime = ZonedDateTime.parse(startTimeUTC)
+                val easternTime = utcTime.withZoneSameInstant(ZoneId.of("America/New_York"))
+
+                val today = LocalDate.now(ZoneId.of("America/New_York"))
+                val gameDate = easternTime.toLocalDate()
+
+                // Format just the time if it's today
+                val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
+                val formattedTime = easternTime.format(timeFormatter)
+
+                return if (gameDate.equals(today)) {
+                    "Today\n$formattedTime"
+                } else if (gameDate.equals(today.plusDays(1))) {
+                    "Tomorrow\n$formattedTime"
+                } else {
+                    // Format with date for other days
+                    val dateFormatter = DateTimeFormatter.ofPattern("MMM d")
+                    val formattedDate = easternTime.format(dateFormatter)
+                    "$formattedDate\n$formattedTime"
+                }
+            } catch (e: Exception) {
+                return startTimeUTC.substringAfter("T").substringBefore("Z")
+            }
+        }
 }
 
 data class TvBroadcast(
