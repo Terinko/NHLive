@@ -1,5 +1,6 @@
 package com.example.nhlive.uiElements
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,7 +30,8 @@ fun GameItemComposable(
     game: Game,
     homeTeamStats: TeamStats?,
     awayTeamStats: TeamStats?,
-    gameDetailsResponse: GameDetailsResponse?
+    gameDetailsResponse: GameDetailsResponse?,
+    onGameClick: (Int) -> Unit = {}
 ) {
     val imageLoader = ImageLoader.Builder(LocalContext.current)
         .components {
@@ -41,6 +43,7 @@ fun GameItemComposable(
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp)
+            .clickable { onGameClick(game.id) }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             //Game state/time display

@@ -1,5 +1,6 @@
 package com.example.nhlive
 
+import AppNavigation
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -10,7 +11,6 @@ import androidx.compose.ui.Modifier
 import com.example.nhlive.ui.theme.NHLiveTheme
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nhlive.uiElements.GameListScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            //Create the viewmodel
+            // Create the viewmodel
             val viewModel: GameListViewModel = viewModel()
 
             NHLiveTheme {
@@ -26,8 +26,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    //gameScreen needs viewmodel to work correctly
-                    GameListScreen(viewModel = viewModel)
+                    // Use AppNavigation instead of directly showing GameListScreen
+                    AppNavigation(viewModel = viewModel)
                 }
             }
         }

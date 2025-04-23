@@ -7,6 +7,38 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 
+
+object GameSorter {
+
+    /**
+     * Sort games by priority:
+     * 1. LIVE/CRIT games
+     * 2. PRE games
+     * 3. FUT games
+     * 4. FINAL/OFF games
+     */
+    fun sortGamesByStatus(games: List<Game>): List<Game> {
+        return games.sortedWith(compareBy { game ->
+            when(game.gameState) {
+                "LIVE", "CRIT" -> 0  // Highest priority - live games
+                "PRE" -> 1          // Pregame
+                "FUT" -> 2          // Future games
+                "FINAL", "OFF" -> 3 // Completed games
+                else -> 4           // Unknown status
+            }
+        })
+    }
+
+    /**
+     * Group games by date and sort each group by status
+     */
+    fun groupAndSortGames(games: List<Game>): Map<String, List<Game>> {
+        return games
+            .groupBy { it.startTimeUTC.split("T").first() }  // Group by date
+            .mapValues { (_, gamesForDate) -> sortGamesByStatus(gamesForDate) }
+    }
+}
+
 data class GameDetailsResponse(
     @SerializedName("id") val id: Int,
     @SerializedName("gameState") val gameState: String,
