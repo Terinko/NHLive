@@ -149,7 +149,8 @@ private fun GameStatusSection(
         )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -188,7 +189,7 @@ private fun GameStatusSection(
                     if (gameDetails.clock.inIntermission) {
                         "Intermission"
                     } else {
-                        "$periodText Period - ${gameDetails.clock.timeRemaining}"
+                        "$periodText - ${gameDetails.clock.timeRemaining}"
                     }
                 } else {
                     "In Progress"
@@ -210,7 +211,8 @@ private fun TeamsScoreboardSection(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         // Away team column
         Column(
@@ -222,27 +224,14 @@ private fun TeamsScoreboardSection(
                 contentDescription = "Away Team Logo",
                 imageLoader = imageLoader,
                 modifier = Modifier.size(100.dp),
-                contentScale = ContentScale.FillBounds
-            )
-
-            Text(
-                text = game.awayTeam.placeName.default,
-                style = MaterialTheme.typography.bodyLarge
+                contentScale = ContentScale.Inside
             )
 
             Text(
                 text = game.awayTeam.commonName.default,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
-
-            if (awayTeamStats != null) {
-                Text(
-                    text = "(${awayTeamStats.wins}-${awayTeamStats.losses}-${awayTeamStats.otLosses})",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
         }
 
         // Score column
@@ -275,27 +264,14 @@ private fun TeamsScoreboardSection(
                 contentDescription = "Home Team Logo",
                 imageLoader = imageLoader,
                 modifier = Modifier.size(100.dp),
-                contentScale = ContentScale.FillBounds
-            )
-
-            Text(
-                text = game.homeTeam.placeName.default,
-                style = MaterialTheme.typography.bodyLarge
+                contentScale = ContentScale.Inside
             )
 
             Text(
                 text = game.homeTeam.commonName.default,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
-
-            if (homeTeamStats != null) {
-                Text(
-                    text = "(${homeTeamStats.wins}-${homeTeamStats.losses}-${homeTeamStats.otLosses})",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
         }
     }
 }
