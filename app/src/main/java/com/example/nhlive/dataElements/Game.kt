@@ -40,6 +40,16 @@ data class TeamName(
     @SerializedName("default") val default: String
 )
 
+data class PlayerDetailsResponse(
+    @SerializedName("playerId") val playerId: Int,
+    @SerializedName("firstName") val firstName: CommonName,
+    @SerializedName("lastName") val lastName: CommonName,
+    @SerializedName("position") val position: String,
+    @SerializedName("sweaterNumber") val sweaterNumber: Int,
+    @SerializedName("headshot") val headshot: String,
+    @SerializedName("last5Games") val last5Games: List<PlayerGameStats>
+)
+
 object GameSorter {
 
     /**
@@ -241,4 +251,11 @@ data class PeriodDescriptor(
     @SerializedName("number") val number: Int = 0,
     @SerializedName("periodType") val periodType: String = "",
     @SerializedName("maxRegulationPeriods") val maxRegulationPeriods: Int = 3
+)
+
+data class PlayerGameStats(
+    @SerializedName("gameDate") val gameDate: String,
+    @SerializedName("points") val points: Int,
+    @SerializedName("goals") val goals: Int, // New field for goals
+    @SerializedName("assists") val assists: Int // New field for assists
 )

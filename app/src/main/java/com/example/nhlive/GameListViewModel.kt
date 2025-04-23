@@ -8,6 +8,7 @@ import com.example.nhlive.dataElements.GameDetailsResponse
 import com.example.nhlive.API.GameRepository
 import com.example.nhlive.dataElements.ScheduleResponse
 import com.example.nhlive.dataElements.TeamStats
+import com.example.nhlive.dataElements.PlayerDetailsResponse
 import com.google.gson.JsonSyntaxException
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -86,6 +87,10 @@ class GameListViewModel(
                 }
             }
         }
+    }
+
+    suspend fun getPlayerDetails(playerId: Int): Result<PlayerDetailsResponse> {
+        return repository.getPlayerDetails(playerId)
     }
 
     fun toggleTheme() {

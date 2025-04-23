@@ -119,7 +119,7 @@ fun GameDetailScreen(
                 // Game details content
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
+                            .fillMaxSize()
                         .padding(paddingValues)
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp),

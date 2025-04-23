@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.nhlive.dataElements.GameDetailsResponse
 import com.example.nhlive.dataElements.ScheduleResponse
 import com.example.nhlive.dataElements.TeamStatsResponse
+import com.example.nhlive.dataElements.PlayerDetailsResponse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -42,6 +43,18 @@ class GameRepository {
             Result.success(details)
         } catch (e: Exception) {
             Log.e("GAME_DETAILS", "Failed to fetch details for game $gameId: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getPlayerDetails(playerId: Int): Result<PlayerDetailsResponse> {
+        return try {
+            Log.d("PLAYER_DETAILS", "Fetching details for player: $playerId")
+            val response = ApiClient.apiService.getPlayerDetails(playerId)
+            Log.d("PLAYER_DETAILS", "Successfully fetched details for player: ${response.firstName.default} ${response.lastName.default}")
+            Result.success(response)
+        } catch (e: Exception) {
+            Log.e("PLAYER_DETAILS", "Failed to fetch player details: ${e.message}")
             Result.failure(e)
         }
     }

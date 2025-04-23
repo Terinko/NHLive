@@ -59,7 +59,8 @@ fun AppNavigation(
         composable(AppRoutes.POTW) {
             POTWScreen(
                 viewModel = viewModel,
-                onBackPressed = { navController.popBackStack() }
+                onBackPressed = { navController.popBackStack() },
+                playerId = 8478402 // TODO: Replace with POTW player ID
             )
         }
     }
