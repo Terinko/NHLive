@@ -4,6 +4,7 @@ import com.example.nhlive.dataElements.GameDetailsResponse
 import com.example.nhlive.dataElements.ScheduleResponse
 import com.example.nhlive.dataElements.TeamStatsResponse
 import com.example.nhlive.dataElements.PlayerDetailsResponse
+import com.example.nhlive.dataElements.GameStoryResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -27,4 +28,8 @@ interface ApiService {
     // New endpoint to fetch player details
     @GET("player/{playerId}/landing")
     suspend fun getPlayerDetails(@Path("playerId") playerId: Int): PlayerDetailsResponse
+
+    // Updated endpoint to fetch game story data
+    @GET("wsc/game-story/{gameId}")
+    suspend fun getGameStory(@Path("gameId") gameId: Int): GameStoryResponse
 }

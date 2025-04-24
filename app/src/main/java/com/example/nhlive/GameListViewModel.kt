@@ -9,6 +9,7 @@ import com.example.nhlive.API.GameRepository
 import com.example.nhlive.dataElements.ScheduleResponse
 import com.example.nhlive.dataElements.TeamStats
 import com.example.nhlive.dataElements.PlayerDetailsResponse
+import com.example.nhlive.dataElements.GameStoryResponse
 import com.google.gson.JsonSyntaxException
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -23,7 +24,8 @@ class GameListViewModel(
         val scheduleResponse: ScheduleResponse? = null,
         val teamStats: Map<Int, TeamStats> = emptyMap(),
         val gameDetails: Map<Int, GameDetailsResponse> = emptyMap(),
-        val isDarkTheme: Boolean = false
+        val isDarkTheme: Boolean = false,
+        val gameStories: Map<Int, GameStoryResponse> = emptyMap()
     )
 
     private val _uiState = MutableLiveData(UiState())
@@ -97,8 +99,24 @@ class GameListViewModel(
         updateState { it.copy(isDarkTheme = !it.isDarkTheme) }
     }
 
+    fun loadGameStory(gameId: Int) {
+        viewModelScope.launch {
+            repository.getGameStory(gameId).onSuccess { gameStory ->
+                updateState { currentState ->
+                    currentState.copy(
+                        gameStories = currentState.gameStories + (gameId to gameStory)
+                    )
+                }
+            }.onFailure { error ->
+                // Log error if fetching game story fails
+                updateState { it.copy(errorMessage = "Failed to load game story: ${error.message}") }
+            }
+        }
+    }
+
     //Update state
     private fun updateState(update: (UiState) -> UiState) {
         _uiState.value = update(_uiState.value ?: UiState())
     }
 }
+

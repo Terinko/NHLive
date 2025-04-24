@@ -1,5 +1,6 @@
 package com.example.nhlive.uiElements
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +55,7 @@ import coil.decode.SvgDecoder
 import com.example.nhlive.GameListViewModel
 import com.example.nhlive.dataElements.Game
 import com.example.nhlive.dataElements.GameDetailsResponse
+import com.example.nhlive.dataElements.GameStoryResponse
 import com.example.nhlive.ui.theme.NHLiveTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,6 +70,15 @@ fun GameDetailScreen(
     // Find the selected game in the schedule
     val game = uiState.scheduleResponse?.gameWeek?.flatMap { it.games }?.find { it.id == gameId }
     val gameDetails = uiState.gameDetails[gameId]
+    val gameStory = uiState.gameStories[gameId]
+
+    LaunchedEffect(gameId) {
+        try {
+            viewModel.loadGameStory(gameId)
+        } catch (e: Exception) {
+            Log.e("GameDetailScreen", "Error loading game story: ${e.message}", e)
+        }
+    }
 
     val imageLoader = ImageLoader.Builder(LocalContext.current)
         .components {
@@ -125,12 +137,6 @@ fun GameDetailScreen(
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Game status section
-
-                    // TODO: Uncomment if we want to keep game status section
-                    //GameStatusSection(game, gameDetails)
-                    //Spacer(modifier = Modifier.height(24.dp))
-
                     // Teams scoreboard section
                     TeamsScoreboardSection(game, imageLoader, gameDetails)
 
@@ -141,13 +147,17 @@ fun GameDetailScreen(
 
                     HorizontalDivider(modifier = Modifier.padding(top = 15.dp, bottom = 15.dp), thickness = 1.dp)
 
-                    // Game details section if available
-                    if (gameDetails != null) {
-                        GamePeriodInfoSection(gameDetails)
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        Spacer(modifier = Modifier.height(24.dp))
+                    Log.i("GameStory", "GameStory: $gameStory, GameId: $gameId")
+                    if (gameStory?.summary != null) {
+                        GameStorySection(gameStory)
+                    }else{
+                        Text(
+                            text = "No Game Stats Available\nGame Has Not Started",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier.padding(20.dp),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }
@@ -291,7 +301,7 @@ private fun TeamsScoreboardSection(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+//                        modifier = Modifier.padding(start = 10.dp, end = 10.dp)
                     ) {
                         Text(
                             // display 1st, 2nd, 3rd, or OT
@@ -314,7 +324,7 @@ private fun TeamsScoreboardSection(
                         Text(
                             text = if (gameDetails != null) {
                                 if (gameDetails.clock.inIntermission) {
-                                    "Intermission"
+                                    "Inter"
                                 } else {
                                     gameDetails.clock.timeRemaining
                                 }
@@ -416,13 +426,18 @@ private fun FavoritesSection() {
             modifier = Modifier
                 .padding(1.dp)
                 .width(140.dp)
-                .border(1.dp, MaterialTheme.colorScheme.onSurface, shape = MaterialTheme.shapes.small)
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.onSurface,
+                    shape = MaterialTheme.shapes.small
+                )
                 .background(
                     buttonColorHome,
                     shape = MaterialTheme.shapes.small
                 ),
             onClick = {
-                buttonColorHome = if (buttonColorHome == Color.Yellow) Color.Transparent else Color.Yellow
+                buttonColorHome =
+                    if (buttonColorHome == Color.Yellow) Color.Transparent else Color.Yellow
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = buttonColorHome,
@@ -440,13 +455,18 @@ private fun FavoritesSection() {
             modifier = Modifier
                 .padding(1.dp)
                 .width(140.dp)
-                .border(1.dp, MaterialTheme.colorScheme.onSurface, shape = MaterialTheme.shapes.small)
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.onSurface,
+                    shape = MaterialTheme.shapes.small
+                )
                 .background(
                     buttonColorAway,
                     shape = MaterialTheme.shapes.small
                 ),
             onClick = {
-                buttonColorAway = if (buttonColorAway == Color.Yellow) Color.Transparent else Color.Yellow
+                buttonColorAway =
+                    if (buttonColorAway == Color.Yellow) Color.Transparent else Color.Yellow
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = buttonColorAway,
@@ -463,85 +483,55 @@ private fun FavoritesSection() {
 }
 
 @Composable
-private fun GamePeriodInfoSection(gameDetails: GameDetailsResponse) {
-    Card(
+private fun GameStorySection(gameStory: GameStoryResponse) {
+    Text(
+        text = "Game Stats",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
+
+    Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = "Period Information",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
+        gameStory.summary.teamGameStats.forEach { stat ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Current Period:",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                val periodText = when (gameDetails.displayPeriod) {
-                    1 -> "1st Period"
-                    2 -> "2nd Period"
-                    3 -> "3rd Period"
-                    4 -> "Overtime"
-                    5 -> "Double Overtime"
-                    6 -> "Triple Overtime"
-                    else -> "${gameDetails.displayPeriod}th Period"
-                }
-
-                Text(
-                    text = periodText,
+                    text = stat.homeValue.toString(),
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
                 )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
                 Text(
-                    text = "Time Remaining:",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                Text(
-                    text = if (gameDetails.clock.inIntermission) "Intermission" else gameDetails.clock.timeRemaining,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Clock Status:",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                Text(
-                    text = if (gameDetails.clock.running) "Running" else "Stopped",
+                    text = when (stat.category) {
+                        "sog" -> "Shots"
+                        "faceoffWinningPctg" -> "Faceoff %"
+                        "powerPlay" -> "Power Play"
+                        "powerPlayPctg" -> "Power Play %"
+                        "pim" -> "Penalty Minutes"
+                        "hits" -> "Hits"
+                        "blockedShots" -> "Blocked Shots"
+                        "giveaways" -> "Giveaways"
+                        "takeaways" -> "Takeaways"
+                        else -> ""
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (gameDetails.clock.running) Color.Green else Color.Red
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = stat.awayValue.toString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
                 )
             }
         }
     }
 }
-

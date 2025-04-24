@@ -19,6 +19,20 @@ data class TeamGameStats(
     @SerializedName("teamStats") val teamStats: List<StatValue>
 )
 
+data class GameStoryResponse(
+    @SerializedName("summary") val summary: GameSummary
+)
+
+data class GameSummary(
+    @SerializedName("teamGameStats") val teamGameStats: List<TeamGameStat>
+)
+
+data class TeamGameStat(
+    @SerializedName("category") val category: String,
+    @SerializedName("awayValue") val awayValue: Any,
+    @SerializedName("homeValue") val homeValue: Any
+)
+
 data class StatValue(
     @SerializedName("teamId") val teamId: Int,
     @SerializedName("abbreviation") val abbreviation: String,

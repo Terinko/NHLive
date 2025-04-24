@@ -5,6 +5,7 @@ import com.example.nhlive.dataElements.GameDetailsResponse
 import com.example.nhlive.dataElements.ScheduleResponse
 import com.example.nhlive.dataElements.TeamStatsResponse
 import com.example.nhlive.dataElements.PlayerDetailsResponse
+import com.example.nhlive.dataElements.GameStoryResponse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -59,6 +60,18 @@ class GameRepository {
         }
     }
 
+    suspend fun getGameStory(gameId: Int): Result<GameStoryResponse> {
+        return try {
+            Log.d("GAME_STORY", "Fetching game story for game: $gameId")
+            val response = ApiClient.apiService.getGameStory(gameId)
+            Log.d("GAME_STORY", "Successfully fetched game story for game: $gameId")
+            Result.success(response)
+        } catch (e: Exception) {
+            Log.e("GAME_STORY", "Failed to fetch game story for game $gameId: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
     //Update both at the same time to save lines
     data class LiveGameUpdate(
         val scheduleResponse: ScheduleResponse? = null,
@@ -97,3 +110,4 @@ class GameRepository {
         }
     }
 }
+
