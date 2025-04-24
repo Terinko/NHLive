@@ -6,19 +6,6 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-data class GameBoxScoreResponse(
-    @SerializedName("id") val id: Int,
-    @SerializedName("gameState") val gameState: String,
-    @SerializedName("teamGameStats") val teamGameStats: List<TeamGameStats>,
-    @SerializedName("homeTeam") val homeTeam: BoxScoreTeam,
-    @SerializedName("awayTeam") val awayTeam: BoxScoreTeam
-)
-
-data class TeamGameStats(
-    @SerializedName("category") val category: String,
-    @SerializedName("teamStats") val teamStats: List<StatValue>
-)
-
 data class GameStoryResponse(
     @SerializedName("summary") val summary: GameSummary
 )
@@ -33,27 +20,6 @@ data class TeamGameStat(
     @SerializedName("homeValue") val homeValue: Any
 )
 
-data class StatValue(
-    @SerializedName("teamId") val teamId: Int,
-    @SerializedName("abbreviation") val abbreviation: String,
-    @SerializedName("value") val value: Int
-)
-
-data class BoxScoreTeam(
-    @SerializedName("id") val id: Int,
-    @SerializedName("name") val name: TeamName,
-    @SerializedName("abbrev") val abbrev: String,
-    @SerializedName("score") val score: Int,
-    @SerializedName("sog") val shotsOnGoal: Int,
-    @SerializedName("faceoffWinningPctg") val faceoffPercentage: Double?,
-    @SerializedName("powerPlayConversion") val powerPlayConversion: String?,
-    @SerializedName("pim") val penaltyMinutes: Int
-)
-
-data class TeamName(
-    @SerializedName("default") val default: String
-)
-
 data class PlayerDetailsResponse(
     @SerializedName("playerId") val playerId: Int,
     @SerializedName("firstName") val firstName: CommonName,
@@ -65,32 +31,20 @@ data class PlayerDetailsResponse(
 )
 
 object GameSorter {
-
-    /**
-     * Sort games by priority:
-     * 1. LIVE/CRIT games
-     * 2. PRE games
-     * 3. FUT games
-     * 4. FINAL/OFF games
-     */
     fun sortGamesByStatus(games: List<Game>): List<Game> {
         return games.sortedWith(compareBy { game ->
             when(game.gameState) {
-                "LIVE", "CRIT" -> 0  // Highest priority - live games
-                "PRE" -> 1          // Pregame
-                "FUT" -> 2          // Future games
-                "FINAL", "OFF" -> 3 // Completed games
-                else -> 4           // Unknown status
+                "LIVE", "CRIT" -> 0 //Highest priority - live games
+                "PRE" -> 1          //Pregame
+                "FUT" -> 2          //Future games
+                "FINAL", "OFF" -> 3 //Completed games
+                else -> 4           //Unknown status
             }
         })
     }
-
-    /**
-     * Group games by date and sort each group by status
-     */
     fun groupAndSortGames(games: List<Game>): Map<String, List<Game>> {
         return games
-            .groupBy { it.startTimeUTC.split("T").first() }  // Group by date
+            .groupBy { it.startTimeUTC.split("T").first() }
             .mapValues { (_, gamesForDate) -> sortGamesByStatus(gamesForDate) }
     }
 }
@@ -160,7 +114,6 @@ data class Game(
     @SerializedName("ticketsLink") val ticketsLink: String = "",
     @SerializedName("gameCenterLink") val gameCenterLink: String = ""
 ) {
-    // Helper property to format game time nicely
     val formattedDateTime: String
         get() {
             try {
@@ -170,7 +123,6 @@ data class Game(
                 val today = LocalDate.now(ZoneId.of("America/New_York"))
                 val gameDate = easternTime.toLocalDate()
 
-                // Format just the time if it's today
                 val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
                 val formattedTime = easternTime.format(timeFormatter)
 
@@ -179,7 +131,6 @@ data class Game(
                 } else if (gameDate.equals(today.plusDays(1))) {
                     "Tomorrow at $formattedTime"
                 } else {
-                    // Format with date for other days
                     val dateFormatter = DateTimeFormatter.ofPattern("MMM d")
                     val formattedDate = easternTime.format(dateFormatter)
                     "$formattedDate at $formattedTime"
@@ -198,7 +149,6 @@ data class Game(
                 val today = LocalDate.now(ZoneId.of("America/New_York"))
                 val gameDate = easternTime.toLocalDate()
 
-                // Format just the time if it's today
                 val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
                 val formattedTime = easternTime.format(timeFormatter)
 
@@ -207,7 +157,6 @@ data class Game(
                 } else if (gameDate.equals(today.plusDays(1))) {
                     "Tomorrow\n$formattedTime"
                 } else {
-                    // Format with date for other days
                     val dateFormatter = DateTimeFormatter.ofPattern("MMM d")
                     val formattedDate = easternTime.format(dateFormatter)
                     "$formattedDate\n$formattedTime"
@@ -270,6 +219,6 @@ data class PeriodDescriptor(
 data class PlayerGameStats(
     @SerializedName("gameDate") val gameDate: String,
     @SerializedName("points") val points: Int,
-    @SerializedName("goals") val goals: Int, // New field for goals
-    @SerializedName("assists") val assists: Int // New field for assists
+    @SerializedName("goals") val goals: Int,
+    @SerializedName("assists") val assists: Int
 )

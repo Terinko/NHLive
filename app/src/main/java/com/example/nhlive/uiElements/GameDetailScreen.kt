@@ -67,7 +67,6 @@ fun GameDetailScreen(
 ) {
     val uiState by viewModel.uiState.observeAsState(GameListViewModel.UiState())
 
-    // Find the selected game in the schedule
     val game = uiState.scheduleResponse?.gameWeek?.flatMap { it.games }?.find { it.id == gameId }
     val gameDetails = uiState.gameDetails[gameId]
     val gameStory = uiState.gameStories[gameId]
@@ -118,7 +117,6 @@ fun GameDetailScreen(
             }
         ) { paddingValues ->
             if (game == null) {
-                // Show loading or error state
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -128,7 +126,6 @@ fun GameDetailScreen(
                     CircularProgressIndicator()
                 }
             } else {
-                // Game details content
                 Column(
                     modifier = Modifier
                             .fillMaxSize()
@@ -137,12 +134,12 @@ fun GameDetailScreen(
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Teams scoreboard section
+                    //Teams scoreboard section
                     TeamsScoreboardSection(game, imageLoader, gameDetails)
 
                     HorizontalDivider(modifier = Modifier.padding(top = 15.dp, bottom = 15.dp), thickness = 1.dp)
 
-                    // Favorites Buttons
+                    //Favorites buttons
                     FavoritesSection()
 
                     HorizontalDivider(modifier = Modifier.padding(top = 15.dp, bottom = 1.dp), thickness = 1.dp)
@@ -176,7 +173,7 @@ private fun TeamsScoreboardSection(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Home team column
+        //Home column
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
@@ -217,21 +214,17 @@ private fun TeamsScoreboardSection(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // if game is live, show the score and time
                 if (game.gameState == "LIVE" || game.gameState == "CRIT") {
                     Text(
                         text = "${game.homeTeam.score ?: 0}",
                         style = MaterialTheme.typography.displayMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    // show current period and time remaining
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-//                        modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+                        verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            // display 1st, 2nd, 3rd, or OT
                             text = if (gameDetails != null) {
                                 when (val period = gameDetails.displayPeriod) {
                                     1 -> "1st"
@@ -268,7 +261,6 @@ private fun TeamsScoreboardSection(
                         fontWeight = FontWeight.Bold
                     )
                 } else if (game.gameState == "FINAL" || game.gameState == "OFF") {
-                    // if game is final or off, show the final score and say "Final"
                     Text(
                         text = "${game.homeTeam.score ?: 0}",
                         style = MaterialTheme.typography.displayMedium,
@@ -286,7 +278,6 @@ private fun TeamsScoreboardSection(
                         fontWeight = FontWeight.Bold
                     )
                 } else if (game.gameState == "FUT" || game.gameState == "PRE") {
-                    // if game is pre or future, show the start date and time and "-" for score
                     Text(
                         text = "-",
                         style = MaterialTheme.typography.displayMedium,
@@ -308,7 +299,7 @@ private fun TeamsScoreboardSection(
             }
         }
 
-        // Away team column
+        // Away column
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,

@@ -18,7 +18,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            // Create the viewmodel
             val viewModel: GameListViewModel = viewModel()
 
             NHLiveTheme {
@@ -26,7 +25,6 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Use AppNavigation instead of directly showing GameListScreen
                     AppNavigation(viewModel = viewModel)
                 }
             }

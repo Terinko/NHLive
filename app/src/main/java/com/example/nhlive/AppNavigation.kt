@@ -15,9 +15,8 @@ import com.example.nhlive.uiElements.POTWScreen
 object AppRoutes {
     const val GAME_LIST = "gameList"
     const val GAME_DETAIL = "gameDetail/{gameId}"
-    const val POTW = "potw" // New route for Player of the Week screen
+    const val POTW = "potw"
 
-    // Helper function to create the route with parameters
     fun gameDetail(gameId: Int) = "gameDetail/$gameId"
 }
 
@@ -36,7 +35,7 @@ fun AppNavigation(
                 onGameClick = { gameId ->
                     navController.navigate(AppRoutes.gameDetail(gameId))
                 },
-                onPOTWClick = { // Navigate to POTW screen
+                onPOTWClick = {
                     navController.navigate(AppRoutes.POTW)
                 }
             )
@@ -60,7 +59,7 @@ fun AppNavigation(
             POTWScreen(
                 viewModel = viewModel,
                 onBackPressed = { navController.popBackStack() },
-                playerId = 8482116 // TODO: Replace with POTW player ID
+                playerId = 8482116
             )
         }
     }

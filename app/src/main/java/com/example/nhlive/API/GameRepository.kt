@@ -72,19 +72,16 @@ class GameRepository {
         }
     }
 
-    //Update both at the same time to save lines
     data class LiveGameUpdate(
         val scheduleResponse: ScheduleResponse? = null,
         val gameDetails: Map<Int, GameDetailsResponse> = emptyMap()
     )
 
-    //Stream of live game updates including scores and details
     fun getLiveGameUpdates(refreshIntervalMs: Long = 30000): Flow<LiveGameUpdate> = flow {
         while (true) {
             val gameDetailsMap = mutableMapOf<Int, GameDetailsResponse>()
             var latestSchedule: ScheduleResponse? = null
 
-            //Refresh
             getTodaySchedule().onSuccess { schedule ->
                 latestSchedule = schedule
                 Log.d(
@@ -103,7 +100,6 @@ class GameRepository {
                 }
             }
 
-            //Emit combined update back to viewModel
             emit(LiveGameUpdate(latestSchedule, gameDetailsMap))
 
             delay(refreshIntervalMs)

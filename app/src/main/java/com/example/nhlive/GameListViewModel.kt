@@ -34,7 +34,7 @@ class GameListViewModel(
     init {
         loadSchedule()
     }
-    //Start our coroutines to get data from the multiple API calls
+
     fun loadSchedule() {
         viewModelScope.launch {
             updateState { it.copy(isLoading = true) }
@@ -79,7 +79,6 @@ class GameListViewModel(
         viewModelScope.launch {
             repository.getLiveGameUpdates().collect { update ->
                 updateState { currentState ->
-                    // Only update schedule if we got a new one (score updates)
                     val updatedSchedule = update.scheduleResponse ?: currentState.scheduleResponse
 
                     currentState.copy(
@@ -108,13 +107,11 @@ class GameListViewModel(
                     )
                 }
             }.onFailure { error ->
-                // Log error if fetching game story fails
                 updateState { it.copy(errorMessage = "Failed to load game story: ${error.message}") }
             }
         }
     }
 
-    //Update state
     private fun updateState(update: (UiState) -> UiState) {
         _uiState.value = update(_uiState.value ?: UiState())
     }

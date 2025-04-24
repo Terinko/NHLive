@@ -106,7 +106,6 @@ fun POTWScreen(
 
 @Composable
 private fun StarCard(playerDetails : PlayerDetailsResponse){
-    // Calculates the current week
     val today = LocalDate.now()
     val sunday = today.with(DayOfWeek.SUNDAY).minusWeeks(2)
     val saturday = today.with(DayOfWeek.SATURDAY).minusWeeks(1)
@@ -166,12 +165,10 @@ private fun StarCard(playerDetails : PlayerDetailsResponse){
 
 @Composable
 private fun WeeklyStats(playerDetails : PlayerDetailsResponse){
-    // Calculates the current week
     val today = LocalDate.now()
     val sunday = today.with(DayOfWeek.SUNDAY).minusWeeks(2)
     val saturday = today.with(DayOfWeek.SATURDAY).minusWeeks(1)
 
-    // Calculates total games, goals, assists, and points from current week
     val dateFormatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val totalGames = playerDetails.last5Games.count {
         val gameDate = LocalDate.parse(it.gameDate, dateFormatter)

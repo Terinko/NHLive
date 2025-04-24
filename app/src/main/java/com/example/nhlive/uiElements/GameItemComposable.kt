@@ -46,7 +46,6 @@ fun GameItemComposable(
             .clickable { onGameClick(game.id) }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            //Game state/time display
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -80,7 +79,6 @@ fun GameItemComposable(
                     } else if (game.gameState == "FINAL" || game.gameState == "OFF") {
                         " "
                     } else if (gameDetailsResponse != null) {
-                        // Display period and time for live games
                         val period = gameDetailsResponse.displayPeriod
                         val periodText = when (period) {
                             1 -> "1st"
@@ -104,7 +102,7 @@ fun GameItemComposable(
                 )
             }
 
-            //Home Team Row
+            //Home row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -155,7 +153,7 @@ fun GameItemComposable(
                 )
             }
 
-            //Away Team Row
+            //Away row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

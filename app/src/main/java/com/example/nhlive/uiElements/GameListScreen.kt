@@ -44,7 +44,7 @@ import com.example.nhlive.ui.theme.NHLiveTheme
 fun GameListScreenWithRefresh(
     viewModel: GameListViewModel,
     onGameClick: (Int) -> Unit = {},
-    onPOTWClick: () -> Unit = {} // Add a callback for navigating to POTWScreen
+    onPOTWClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.observeAsState(GameListViewModel.UiState())
     NHLiveTheme(darkTheme = uiState.isDarkTheme) {
@@ -57,8 +57,7 @@ fun GameListScreenWithRefresh(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            // Button to go to POTW Screen
-                            IconButton(onClick = { onPOTWClick() }) { // Navigate to POTWScreen
+                            IconButton(onClick = { onPOTWClick() }) {
                                 Icon(
                                     imageVector = Icons.Default.AccountCircle,
                                     contentDescription = "Player of the Week"
@@ -95,10 +94,8 @@ fun GameListScreenWithRefresh(
                 contentAlignment = Alignment.Center
             ) {
                 if (uiState.isLoading) {
-                    // Show loading indicator
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 } else if (uiState.errorMessage != null) {
-                    // Show error message
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -118,7 +115,6 @@ fun GameListScreenWithRefresh(
                         )
                     }
                 } else if (uiState.scheduleResponse?.gameWeek.isNullOrEmpty()) {
-                    // No games available
                     Text(
                         text = "No games scheduled for today",
                         modifier = Modifier.align(Alignment.Center),
@@ -126,7 +122,6 @@ fun GameListScreenWithRefresh(
                         textAlign = TextAlign.Center
                     )
                 } else {
-                    // Display game list
                     Column {
                         Text(
                             text = "Live Scores:",
