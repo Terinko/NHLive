@@ -145,7 +145,7 @@ fun GameDetailScreen(
                     // Favorites Buttons
                     FavoritesSection()
 
-                    HorizontalDivider(modifier = Modifier.padding(top = 15.dp, bottom = 15.dp), thickness = 1.dp)
+                    HorizontalDivider(modifier = Modifier.padding(top = 15.dp, bottom = 1.dp), thickness = 1.dp)
 
                     Log.i("GameStory", "GameStory: $gameStory, GameId: $gameId")
                     if (gameStory?.summary != null) {
@@ -164,76 +164,6 @@ fun GameDetailScreen(
         }
     }
 }
-
-@Composable
-private fun GameStatusSection(
-    game: Game,
-    gameDetails: GameDetailsResponse?
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = when (game.gameState) {
-                "LIVE", "CRIT" -> MaterialTheme.colorScheme.errorContainer
-                "FINAL", "OFF" -> MaterialTheme.colorScheme.tertiaryContainer
-                else -> MaterialTheme.colorScheme.secondaryContainer
-            }
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = when (game.gameState) {
-                    "FUT" -> "Upcoming Game"
-                    "PRE" -> "Pregame"
-                    "LIVE" -> "LIVE"
-                    "FINAL" -> "Final"
-                    "CRIT" -> "Critical Game Time"
-                    "OFF" -> "Official Final Score"
-                    else -> game.gameState
-                },
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = when (game.gameState) {
-                    "LIVE", "CRIT" -> MaterialTheme.colorScheme.onErrorContainer
-                    "FINAL", "OFF" -> MaterialTheme.colorScheme.onTertiaryContainer
-                    else -> MaterialTheme.colorScheme.onSecondaryContainer
-                }
-            )
-
-            Text(
-                text = if (game.gameState == "FUT" || game.gameState == "PRE") {
-                    game.formattedDateTime
-                } else if (game.gameState == "FINAL" || game.gameState == "OFF") {
-                    "Game Complete"
-                } else if (gameDetails != null) {
-                    val period = gameDetails.displayPeriod
-                    val periodText = when (period) {
-                        1 -> "1st"
-                        2 -> "2nd"
-                        3 -> "3rd"
-                        else -> "${period}th"
-                    }
-
-                    if (gameDetails.clock.inIntermission) {
-                        "Intermission"
-                    } else {
-                        "$periodText - ${gameDetails.clock.timeRemaining}"
-                    }
-                } else {
-                    "In Progress"
-                },
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
 
 @Composable
 private fun TeamsScoreboardSection(
@@ -275,9 +205,6 @@ private fun TeamsScoreboardSection(
             )
         }
 
-        // Home score
-        // Game time
-        // Away score
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -441,7 +368,7 @@ private fun FavoritesSection() {
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = buttonColorHome,
-                contentColor = MaterialTheme.colorScheme.onSurface
+                contentColor = if (buttonColorHome == Color.Yellow) Color.Black else MaterialTheme.colorScheme.onSurface
             )
         ) {
             Text(
@@ -470,7 +397,7 @@ private fun FavoritesSection() {
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = buttonColorAway,
-                contentColor = MaterialTheme.colorScheme.onSurface
+                contentColor = if (buttonColorAway == Color.Yellow) Color.Black else MaterialTheme.colorScheme.onSurface
             )
         ) {
             Text(
@@ -484,13 +411,6 @@ private fun FavoritesSection() {
 
 @Composable
 private fun GameStorySection(gameStory: GameStoryResponse) {
-    Text(
-        text = "Game Stats",
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(bottom = 8.dp)
-    )
-
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -503,9 +423,9 @@ private fun GameStorySection(gameStory: GameStoryResponse) {
             ) {
                 Text(
                     text = stat.homeValue.toString(),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Start
                 )
                 Text(
                     text = when (stat.category) {
@@ -520,18 +440,19 @@ private fun GameStorySection(gameStory: GameStoryResponse) {
                         "takeaways" -> "Takeaways"
                         else -> ""
                     },
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center
                 )
                 Text(
                     text = stat.awayValue.toString(),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.End
                 )
             }
+            HorizontalDivider(thickness = 1.dp)
         }
     }
 }
