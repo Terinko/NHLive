@@ -3,16 +3,25 @@ package com.example.nhlive
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.nhlive.dataElements.AppDatabase
+import com.example.nhlive.dataElements.FavoriteRepository
 import com.example.nhlive.dataElements.GameDetailsResponse
-import com.example.nhlive.API.GameRepository
+import com.example.nhlive.dataElements.GameRepository
 import com.example.nhlive.dataElements.ScheduleResponse
 import com.example.nhlive.dataElements.TeamStats
 import com.example.nhlive.dataElements.PlayerDetailsResponse
 import com.example.nhlive.dataElements.GameStoryResponse
+import com.example.nhlive.dataElements.Teams
 import com.google.gson.JsonSyntaxException
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import kotlin.collections.find
 
 class GameListViewModel(
     private val repository: GameRepository = GameRepository()
@@ -38,7 +47,6 @@ class GameListViewModel(
     fun loadSchedule() {
         viewModelScope.launch {
             updateState { it.copy(isLoading = true) }
-
             try {
                 repository.getTodaySchedule().fold(
                     onSuccess = { schedule ->

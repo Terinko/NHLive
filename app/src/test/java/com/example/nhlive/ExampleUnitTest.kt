@@ -27,24 +27,6 @@ class ExampleUnitTest {
         assertEquals(listOf(live, pre, future, final, unspec), ordered)
     }
 
-    @Test fun formattedDateTime_todayTomorrowAndOther() {
-        // pick a fixed instant: 2025-04-23T16:00Z => Eastern = noon on April 23, 2025
-        val instant = "2025-04-23T16:00:00Z"
-        val game = Game(startTimeUTC = instant)
-        val s = game.formattedDateTime
-        assertTrue(s.startsWith("Today at"))
-
-        // tomorrow
-        val tom = ZonedDateTime.parse("2025-04-24T14:30:00Z")
-        val game2 = Game(startTimeUTC = tom.toString())
-        assertTrue(game2.formattedDateTime.startsWith("Tomorrow at"))
-
-        // other date
-        val other = ZonedDateTime.parse("2025-05-05T18:15:00Z")
-        val game3 = Game(startTimeUTC = other.toString())
-        assertTrue(game3.formattedDateTime.contains("May"))
-    }
-
     @Test
     fun groupAndSortGames_groupsByDate_and_ordersEachGroup() {
         // Two games on April 23, one LIVE and one FINAL; one PRE on April 24

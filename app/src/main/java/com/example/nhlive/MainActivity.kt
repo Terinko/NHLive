@@ -19,7 +19,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val viewModel: GameListViewModel = viewModel()
-
             NHLiveTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),

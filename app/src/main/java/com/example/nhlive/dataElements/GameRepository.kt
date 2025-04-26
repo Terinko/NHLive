@@ -1,11 +1,7 @@
-package com.example.nhlive.API
+package com.example.nhlive.dataElements
 
 import android.util.Log
-import com.example.nhlive.dataElements.GameDetailsResponse
-import com.example.nhlive.dataElements.ScheduleResponse
-import com.example.nhlive.dataElements.TeamStatsResponse
-import com.example.nhlive.dataElements.PlayerDetailsResponse
-import com.example.nhlive.dataElements.GameStoryResponse
+import com.example.nhlive.API.ApiClient
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -106,4 +102,3 @@ class GameRepository {
         }
     }
 }
-

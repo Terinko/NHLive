@@ -1,10 +1,18 @@
 package com.example.nhlive.dataElements
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+
+@Entity(tableName = "teams")
+data class Teams(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val teamName: String,
+)
 
 data class GameStoryResponse(
     @SerializedName("summary") val summary: GameSummary

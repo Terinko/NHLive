@@ -1,5 +1,6 @@
 package com.example.nhlive.uiElements
 
+import android.R
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,10 +8,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
+import com.example.nhlive.dataElements.AppDatabase
+import com.example.nhlive.dataElements.FavoriteRepository
 import com.example.nhlive.dataElements.Game
 import com.example.nhlive.dataElements.GameDetailsResponse
 import com.example.nhlive.dataElements.TeamStats
@@ -33,6 +46,14 @@ fun GameItemComposable(
     gameDetailsResponse: GameDetailsResponse?,
     onGameClick: (Int) -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val repo    = remember { FavoriteRepository(AppDatabase.getInstance(context).userDao()) }
+
+    val favorites by repo.allFavorites.collectAsState(initial = emptyList())
+
+    val homeName = game.homeTeam.commonName.default
+    val awayName = game.awayTeam.commonName.default
+
     val imageLoader = ImageLoader.Builder(LocalContext.current)
         .components {
             add(SvgDecoder.Factory())
@@ -122,11 +143,21 @@ fun GameItemComposable(
                         contentScale = ContentScale.Inside
                     )
                     Column(modifier = Modifier.padding(start = 5.dp)) {
-                        Text(
-                            text = "${game.homeTeam.placeName.default} ${game.homeTeam.commonName.default}",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row() {
+                            Text(
+                                text = "${game.homeTeam.placeName.default} ${game.homeTeam.commonName.default}",
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            if (favorites.any { it.teamName == homeName }) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = "Favorite",
+                                    tint = Color.Yellow,
+                                    modifier = Modifier.padding(start = 5.dp)
+                                )
+                            }
+                        }
                         when {
                             homeTeamStats != null -> {
                                 Text(
@@ -173,11 +204,21 @@ fun GameItemComposable(
                         contentScale = ContentScale.Inside
                     )
                     Column(modifier = Modifier.padding(start = 5.dp)) {
-                        Text(
-                            text = "${game.awayTeam.placeName.default} ${game.awayTeam.commonName.default}",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row() {
+                            Text(
+                                text = "${game.awayTeam.placeName.default} ${game.awayTeam.commonName.default}",
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            if (favorites.any { it.teamName == awayName }) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = "Favorite",
+                                    tint = Color.Yellow,
+                                    modifier = Modifier.padding(start = 5.dp)
+                                )
+                            }
+                        }
                         when {
                             awayTeamStats != null -> {
                                 Text(
@@ -196,6 +237,7 @@ fun GameItemComposable(
                         }
                     }
                 }
+
                 Text(
                     text = game.awayTeam.score?.toString() ?: "-",
                     fontWeight = FontWeight.ExtraBold,

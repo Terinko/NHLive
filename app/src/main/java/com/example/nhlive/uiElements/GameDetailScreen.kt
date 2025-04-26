@@ -36,10 +36,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,14 +51,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
 import com.example.nhlive.GameListViewModel
+import com.example.nhlive.dataElements.AppDatabase
+import com.example.nhlive.dataElements.FavoriteRepository
 import com.example.nhlive.dataElements.Game
 import com.example.nhlive.dataElements.GameDetailsResponse
 import com.example.nhlive.dataElements.GameStoryResponse
 import com.example.nhlive.ui.theme.NHLiveTheme
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +71,8 @@ fun GameDetailScreen(
     viewModel: GameListViewModel,
     onBackPressed: () -> Unit
 ) {
+    val context = LocalContext.current
+
     val uiState by viewModel.uiState.observeAsState(GameListViewModel.UiState())
 
     val game = uiState.scheduleResponse?.gameWeek?.flatMap { it.games }?.find { it.id == gameId }
@@ -128,7 +136,7 @@ fun GameDetailScreen(
             } else {
                 Column(
                     modifier = Modifier
-                            .fillMaxSize()
+                        .fillMaxSize()
                         .padding(paddingValues)
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp),
@@ -140,14 +148,14 @@ fun GameDetailScreen(
                     HorizontalDivider(modifier = Modifier.padding(top = 15.dp, bottom = 15.dp), thickness = 1.dp)
 
                     //Favorites buttons
-                    FavoritesSection()
+                    FavoritesSection(game)
 
                     HorizontalDivider(modifier = Modifier.padding(top = 15.dp, bottom = 1.dp), thickness = 1.dp)
 
                     Log.i("GameStory", "GameStory: $gameStory, GameId: $gameId")
                     if (gameStory?.summary != null) {
                         GameStorySection(gameStory)
-                    }else{
+                    } else {
                         Text(
                             text = "No Game Stats Available\nGame Has Not Started",
                             style = MaterialTheme.typography.bodyMedium,
@@ -331,9 +339,27 @@ private fun TeamsScoreboardSection(
 }
 
 @Composable
-private fun FavoritesSection() {
+private fun FavoritesSection(game: Game) {
+    val context = LocalContext.current
+    val repo    = remember { FavoriteRepository(AppDatabase.getInstance(context).userDao()) }
+    val scope   = rememberCoroutineScope()
+
     var buttonColorHome by remember { mutableStateOf(Color.Transparent) }
     var buttonColorAway by remember { mutableStateOf(Color.Transparent) }
+
+    val favorites by repo.allFavorites.collectAsState(initial = emptyList())
+
+    val homeName = game.homeTeam.commonName.default
+    val awayName = game.awayTeam.commonName.default
+
+    val isHomeFav = favorites.any { it.teamName == homeName }
+    val isAwayFav = favorites.any { it.teamName == awayName }
+
+    val homeBgColor     = if (isHomeFav) Color.Yellow else Color.Transparent
+    val homeContentColor= if (isHomeFav) Color.Black  else MaterialTheme.colorScheme.onSurface
+
+    val awayBgColor     = if (isAwayFav) Color.Yellow else Color.Transparent
+    val awayContentColor= if (isAwayFav) Color.Black  else MaterialTheme.colorScheme.onSurface
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -350,17 +376,24 @@ private fun FavoritesSection() {
                     shape = MaterialTheme.shapes.small
                 )
                 .background(
-                    buttonColorHome,
+                    homeBgColor,
                     shape = MaterialTheme.shapes.small
                 ),
-            onClick = {
-                buttonColorHome =
-                    if (buttonColorHome == Color.Yellow) Color.Transparent else Color.Yellow
-            },
             colors = ButtonDefaults.buttonColors(
-                containerColor = buttonColorHome,
-                contentColor = if (buttonColorHome == Color.Yellow) Color.Black else MaterialTheme.colorScheme.onSurface
-            )
+                containerColor = homeBgColor,
+                contentColor = homeContentColor
+            ),
+            onClick = {
+                scope.launch {
+                    if (isHomeFav) {
+                        // remove existing record
+                        val record = favorites.first { it.teamName == homeName }
+                        repo.removeFavorite(record.id)
+                    } else {
+                        repo.addFavorite(homeName)
+                    }
+                }
+            },
         ) {
             Text(
                 text = if (buttonColorHome == Color.Yellow) "Favorited" else "Favorite",
@@ -379,20 +412,27 @@ private fun FavoritesSection() {
                     shape = MaterialTheme.shapes.small
                 )
                 .background(
-                    buttonColorAway,
+                    awayBgColor,
                     shape = MaterialTheme.shapes.small
                 ),
-            onClick = {
-                buttonColorAway =
-                    if (buttonColorAway == Color.Yellow) Color.Transparent else Color.Yellow
-            },
             colors = ButtonDefaults.buttonColors(
-                containerColor = buttonColorAway,
-                contentColor = if (buttonColorAway == Color.Yellow) Color.Black else MaterialTheme.colorScheme.onSurface
-            )
+                containerColor = awayBgColor,
+                contentColor = awayContentColor
+            ),
+            onClick = {
+                scope.launch {
+                    if (isAwayFav) {
+                        // remove existing record
+                        val record = favorites.first { it.teamName == awayName }
+                        repo.removeFavorite(record.id)
+                    } else {
+                        repo.addFavorite(awayName)
+                    }
+                }
+            },
         ) {
             Text(
-                text = if (buttonColorAway == Color.Yellow) "Favorited" else "Favorite",
+                text = if (buttonColorHome == Color.Yellow) "Favorited" else "Favorite",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Normal
             )
