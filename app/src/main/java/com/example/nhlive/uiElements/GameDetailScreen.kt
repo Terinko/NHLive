@@ -22,8 +22,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -51,7 +49,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
@@ -63,6 +60,7 @@ import com.example.nhlive.dataElements.GameDetailsResponse
 import com.example.nhlive.dataElements.GameStoryResponse
 import com.example.nhlive.ui.theme.NHLiveTheme
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,7 +69,6 @@ fun GameDetailScreen(
     viewModel: GameListViewModel,
     onBackPressed: () -> Unit
 ) {
-    val context = LocalContext.current
 
     val uiState by viewModel.uiState.observeAsState(GameListViewModel.UiState())
 
@@ -446,18 +443,50 @@ private fun GameStorySection(gameStory: GameStoryResponse) {
         modifier = Modifier.fillMaxWidth()
     ) {
         gameStory.summary.teamGameStats.forEach { stat ->
+            println(stat.awayValue::class)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = stat.homeValue.toString(),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Start
-                )
+                val rawHome = stat.homeValue.toString().toDoubleOrNull() ?: 0.0
+                val pctStringHome = String.format("%.1f%%", rawHome * 100)
+
+                if(stat.category == "faceoffWinningPctg"){
+                    Text(
+                        text = pctStringHome,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Start
+                    )
+                }else if(stat.category == "powerPlayPctg"){
+                    Text(
+                        text = pctStringHome,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Start
+                    )
+                }else if(stat.category != "powerPlay"){
+                    Text(
+                        text = stat.homeValue
+                            .toString()
+                            .toDoubleOrNull()
+                            ?.roundToInt()
+                            ?.toString()
+                            ?: "-" ,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Start
+                    )
+                }else{
+                    Text(
+                        text = stat.homeValue.toString(),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Start
+                    )
+                }
                 Text(
                     text = when (stat.category) {
                         "sog" -> "Shots"
@@ -476,12 +505,43 @@ private fun GameStorySection(gameStory: GameStoryResponse) {
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center
                 )
-                Text(
-                    text = stat.awayValue.toString(),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.End
-                )
+                val rawAway = stat.awayValue.toString().toDoubleOrNull() ?: 0.0
+                val pctStringAway = String.format("%.1f%%", rawAway * 100)
+
+                if(stat.category == "faceoffWinningPctg"){
+                    Text(
+                        text = pctStringAway,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.End
+                    )
+                }else if(stat.category == "powerPlayPctg"){
+                    Text(
+                        text = pctStringAway,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.End
+                    )
+                }else if(stat.category != "powerPlay"){
+                    Text(
+                        text = stat.awayValue
+                            .toString()
+                            .toDoubleOrNull()
+                            ?.roundToInt()
+                            ?.toString()
+                            ?: "-" ,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.End
+                    )
+                }else{
+                    Text(
+                        text = stat.awayValue.toString(),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.End
+                    )
+                }
             }
             HorizontalDivider(thickness = 1.dp)
         }
