@@ -393,7 +393,7 @@ private fun FavoritesSection(game: Game) {
             },
         ) {
             Text(
-                text = if (buttonColorHome == Color.Yellow) "Favorited" else "Favorite",
+                text = if (isHomeFav) "Favorited" else "Favorite",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Normal
             )
@@ -429,7 +429,7 @@ private fun FavoritesSection(game: Game) {
             },
         ) {
             Text(
-                text = if (buttonColorHome == Color.Yellow) "Favorited" else "Favorite",
+                text = if (isAwayFav) "Favorited" else "Favorite",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Normal
             )

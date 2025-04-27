@@ -1,6 +1,7 @@
 package com.example.nhlive.uiElements
 
 import android.R
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -153,7 +154,7 @@ fun GameItemComposable(
                                 Icon(
                                     imageVector = Icons.Default.Star,
                                     contentDescription = "Favorite",
-                                    tint = Color.Yellow,
+                                    tint = Color.hsv(45f, 0.78f, 1f),
                                     modifier = Modifier.padding(start = 5.dp)
                                 )
                             }
@@ -214,7 +215,7 @@ fun GameItemComposable(
                                 Icon(
                                     imageVector = Icons.Default.Star,
                                     contentDescription = "Favorite",
-                                    tint = Color.Yellow,
+                                    tint = Color.hsv(45f, 0.78f, 1f),
                                     modifier = Modifier.padding(start = 5.dp)
                                 )
                             }
