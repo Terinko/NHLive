@@ -143,7 +143,7 @@ data class Game(
                     val formattedDate = easternTime.format(dateFormatter)
                     "$formattedDate at $formattedTime"
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 return startTimeUTC.substringAfter("T").substringBefore("Z")
             }
         }
@@ -169,7 +169,7 @@ data class Game(
                     val formattedDate = easternTime.format(dateFormatter)
                     "$formattedDate\n$formattedTime"
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 return startTimeUTC.substringAfter("T").substringBefore("Z")
             }
         }

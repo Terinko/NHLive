@@ -1,4 +1,5 @@
-import android.R.attr.type
+package com.example.nhlive
+
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -7,7 +8,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.nhlive.GameListViewModel
 import com.example.nhlive.uiElements.GameDetailScreen
 import com.example.nhlive.uiElements.GameListScreenWithRefresh
 import com.example.nhlive.uiElements.POTWScreen
@@ -59,7 +59,7 @@ fun AppNavigation(
             POTWScreen(
                 viewModel = viewModel,
                 onBackPressed = { navController.popBackStack() },
-                playerId = 8482116
+                playerId = 8477960
             )
         }
     }
